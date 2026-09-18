@@ -1,48 +1,103 @@
-package com.techfix.app.ui.onboarding
+package com.example.vippela.ui.onboarding
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-// Troque "R" pelo import do R do seu módulo, ex: import com.techfix.app.R
+import com.example.vippela.R
+import kotlin.math.sin
+import kotlin.random.Random
 
-/**
- * Tela 01 do onboarding — "Seja bem-vindo!"
- * Standalone: não depende do OnboardingScreen/pager, útil pra visualizar
- * ou usar essa tela isolada (splash inicial, por exemplo).
- */
 @Composable
 fun OnboardingWelcomeScreen(
-    onNext: () -> Unit,
-    totalSteps: Int = 5,
-    currentStep: Int = 0
+    onNext: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundLavender)
     ) {
+        // Linha tracejada ondulada no topo — toca as bordas laterais
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp)
+                .align(Alignment.TopCenter)
+        ) {
+            val strokeWidth = 1.5.dp.toPx()
+            val dashLen = 6.dp.toPx()
+            val gapLen = 4.dp.toPx()
+            val pathEffect = PathEffect.dashPathEffect(
+                floatArrayOf(dashLen, gapLen), 0f
+            )
+            val centerY = size.height / 2
+            val steps = 300
+            val rng = Random(1)
+
+            val path = androidx.compose.ui.graphics.Path().apply {
+                val stepX = size.width / steps
+                moveTo(0f, centerY)
+                var y = centerY
+                for (i in 1..steps) {
+                    val x = i * stepX
+                    val t = x / size.width
+                    val wave1 = sin(Math.toRadians(t * 360.0 * 1.8)).toFloat() * 3.dp.toPx()
+                    val wave2 = sin(Math.toRadians(t * 360.0 * 4.2)).toFloat() * 1.5.dp.toPx()
+                    val noise = (rng.nextFloat() - 0.5f) * 3.dp.toPx()
+                    val target = centerY + wave1 + wave2 + noise
+                    y += (target - y) * 0.4f
+                    lineTo(x, y)
+                }
+            }
+
+            drawPath(
+                path = path,
+                color = Color(0xFF9B93C4),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                    width = strokeWidth,
+                    pathEffect = pathEffect,
+                    cap = StrokeCap.Round
+                )
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 32.dp)
+                .padding(horizontal = 24.dp, vertical = 48.dp)
         ) {
 
-            // Badge "01"
+            // Badge "01" — fundo sólido lilás
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
@@ -76,9 +131,9 @@ fun OnboardingWelcomeScreen(
                 lineHeight = 22.sp
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Card com a ilustração (troque pelo asset exportado do Figma)
+            // Card com a ilustração
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -90,57 +145,64 @@ fun OnboardingWelcomeScreen(
                 Image(
                     painter = painterResource(id = R.drawable.ic_onboarding_welcome),
                     contentDescription = "Ilustração de boas-vindas",
-                    modifier = Modifier.fillMaxSize(0.75f)
+                    modifier = Modifier.fillMaxSize(0.7f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Indicador de páginas (bolinhas)
+            // Indicadores (barras) + Botão
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                repeat(totalSteps) { index ->
-                    val isSelected = index == currentStep
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
-                            .size(if (isSelected) 10.dp else 8.dp)
-                            .clip(CircleShape)
-                            .background(if (isSelected) AccentPurple else StepChipPurple)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(5) { index ->
+                        val isActive = index == 0
+                        Box(
+                            modifier = Modifier
+                                .height(4.dp)
+                                .width(if (isActive) 20.dp else 12.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(if (isActive) AccentPurple else IndicatorInactive)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = onNext,
+                    modifier = Modifier
+                        .widthIn(min = 140.dp)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
+                    contentPadding = ButtonDefaults.TextButtonWithIconContentPadding
+                ) {
+                    Text(
+                        text = "Próximo",
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = onNext,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentPurple)
-            ) {
-                Text(
-                    text = "Proximo",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = null,
-                    tint = Color.White
-                )
             }
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 200, heightDp = 420)
+@Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun OnboardingWelcomeScreenPreview() {
     OnboardingWelcomeScreen(onNext = {})
