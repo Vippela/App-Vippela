@@ -1,27 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.vippela.app-mergeDebugResources-37:/values-de/values-de.xml",
+            "outputFile": "com.example.vippela.app-mergeDebugResources-38:/values-de/values-de.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\a74015da350655760dc3202df450c376\\transformed\\core-1.19.0\\res\\values-de\\values-de.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,153,255,355,455,563,668,786",
-                        "endColumns": "97,101,99,99,107,104,117,100",
-                        "endOffsets": "148,250,350,450,558,663,781,882"
-                    },
-                    "to": {
-                        "startLines": "4,5,6,7,8,9,10,94",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "331,429,531,631,731,839,944,9946",
-                        "endColumns": "97,101,99,99,107,104,117,100",
-                        "endOffsets": "424,526,626,726,834,939,1057,10042"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\e4b3a08b0e9b40518db474ee9251e5ef\\transformed\\ui\\res\\values-de\\values-de.xml",
+                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\bcab1e11fc429b65303aae84205e4af0\\transformed\\ui\\res\\values-de\\values-de.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -38,7 +21,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\4f90a20b8d4fd3c98e93e5848eb0f696\\transformed\\foundation\\res\\values-de\\values-de.xml",
+                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\8af94aaf4667692cd671ed53bb03cf4d\\transformed\\core-1.19.0\\res\\values-de\\values-de.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,153,255,355,455,563,668,786",
+                        "endColumns": "97,101,99,99,107,104,117,100",
+                        "endOffsets": "148,250,350,450,558,663,781,882"
+                    },
+                    "to": {
+                        "startLines": "4,5,6,7,8,9,10,94",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "331,429,531,631,731,839,944,9946",
+                        "endColumns": "97,101,99,99,107,104,117,100",
+                        "endOffsets": "424,526,626,726,834,939,1057,10042"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\ae1679d99530d2398246ea5108aee06e\\transformed\\foundation\\res\\values-de\\values-de.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
@@ -55,7 +55,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\081bccad945fe9d34f8b990cef84bf1e\\transformed\\material\\res\\values-de\\values-de.xml",
+                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\e576e18ff4be40567c38a1253e3f3d7a\\transformed\\material\\res\\values-de\\values-de.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -72,7 +72,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\41a364e205dc6992f43a87007d8b72f4\\transformed\\material3\\res\\values-de\\values-de.xml",
+                    "source": "C:\\Users\\Guilherme\\.gradle\\caches\\9.5.0\\transforms\\09c3204b9f053f1f983ed2c8f927053b\\transformed\\material3\\res\\values-de\\values-de.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
