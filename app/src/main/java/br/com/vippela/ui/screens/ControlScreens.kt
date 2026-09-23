@@ -83,7 +83,7 @@ fun LimitsScreen(state: DemoState, back: () -> Unit) {
             )
         }
         Text(
-            "O limite será aplicado apenas aos dados de demonstração.",
+            "O limite será aplicado apenas aos dados de demo.",
             style = MaterialTheme.typography.bodySmall,
             color = Muted,
         )
