@@ -146,11 +146,11 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
                     !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ||
                     password.length < 8
             if (!error) {
-                state.googleUid = null
-                state.role = if (role == 0) Role.RESPONSAVEL else Role.FAMILIAR
-                state.displayName = name.trim()
-                state.email = email.trim()
-                if (role == 1) state.members[0] = state.members[0].copy(name = name.trim())
+                state.register(
+                    name,
+                    email,
+                    if (role == 0) Role.RESPONSAVEL else Role.FAMILIAR,
+                )
                 done()
             }
         }

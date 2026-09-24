@@ -32,9 +32,9 @@ Preferências, alterações e dados locais ficam em memória durante a sessão d
 
 ## Pendências
 
-As ilustrações das duas primeiras páginas e os nove ícones do onboarding usam os JPGs fornecidos em ezyZip.zip, sem alteração dos arquivos. O rodapé do onboarding fica ancorado na parte inferior; o conteúdo superior pode rolar em telas menores. O gráfico da quarta etapa foi redesenhado com espessura maior e degradê, e o celular da quinta etapa tem olhos e sorriso.
+As duas primeiras ilustrações, a ilustração de vínculo e os nove ícones do onboarding usam os PNGs transparentes fornecidos pelo usuário. O rodapé do onboarding fica ancorado na parte inferior; o conteúdo superior pode rolar em telas menores. O gráfico da quarta etapa foi redesenhado com espessura maior e degradê, e o celular da quinta etapa tem olhos e sorriso.
 
-O pacote contém somente uma ilustração de vínculo (responsável e criança no skate), usada nas duas etapas. A imagem específica da criança nos ombros do adulto não veio no ZIP. Os JPGs têm fundo claro incorporado, preservado nesta entrega. O logotipo e os avatares de escolha continuam sendo as reconstruções vetoriais anteriores.
+O pacote contém somente uma ilustração de vínculo (responsável e criança no skate), usada nas duas etapas. A imagem específica da criança nos ombros do adulto não veio no pacote. Os PNGs disponíveis preservam o canal alfa e não carregam mais o fundo claro dos JPGs anteriores. O logotipo e os avatares de escolha continuam sendo as reconstruções vetoriais anteriores.
 
 O login Google exige o arquivo de configuração do projeto do usuário e um teste em dispositivo conectado. Esta entrega não inclui credenciais nem declara esse teste como concluído.
 

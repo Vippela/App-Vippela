@@ -94,19 +94,22 @@ fun AccessScreen(
                                             busy = true
                                             try {
                                                 val profile = google.signIn()
-                                                state.googleUid = profile.id
-                                                state.role = role
-                                                state.email = profile.email
-                                                state.displayName = profile.name
-                                                if (role == Role.FAMILIAR)
-                                                    state.members[0] =
-                                                        state.members[0].copy(name = profile.name)
-                                                state.selectedId = 1
+                                                state.loginWithGoogle(
+                                                    profile.id,
+                                                    profile.name,
+                                                    profile.email,
+                                                    role,
+                                                )
                                                 enter()
                                             } catch (
                                                 _:
                                                     androidx.credentials.exceptions.GetCredentialCancellationException) {
                                                 message = "Entrada cancelada."
+                                            } catch (
+                                                _:
+                                                    androidx.credentials.exceptions.NoCredentialException) {
+                                                message =
+                                                    "Nenhuma conta Google está disponível neste dispositivo."
                                             } catch (_: Exception) {
                                                 message =
                                                     "Não foi possível entrar com Google. Confira a conexão e tente novamente."

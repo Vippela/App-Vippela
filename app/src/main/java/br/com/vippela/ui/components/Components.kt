@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.core.net.toUri
 import br.com.vippela.ui.theme.*
 
 @Composable
@@ -114,7 +115,7 @@ fun Avatar(name: String, size: Dp = 52.dp, photo: String? = null) {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     photo?.let {
                         runCatching {
-                                val uri = android.net.Uri.parse(it)
+                                val uri = it.toUri()
                                 val options =
                                     android.graphics.BitmapFactory.Options().apply {
                                         inJustDecodeBounds = true

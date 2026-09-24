@@ -183,16 +183,47 @@ class DemoState : ViewModel() {
 
     fun login(address: String, password: String): Boolean {
         if (password != "vippela123") return false
-        role =
+        val authenticatedRole =
             when (address.trim().lowercase()) {
                 "responsavel@vippela.demo" -> Role.RESPONSAVEL
                 "familiar@vippela.demo" -> Role.FAMILIAR
                 else -> return false
             }
+        startSession(authenticatedRole, address)
+        return true
+    }
+
+    fun register(name: String, address: String, newRole: Role) {
+        startSession(newRole, address, name)
+    }
+
+    fun loginWithGoogle(id: String, name: String, address: String, newRole: Role) {
+        startSession(newRole, address, name, id)
+    }
+
+    fun logout() {
+        role = null
         googleUid = null
+        selectedId = 1
+    }
+
+    private fun startSession(
+        newRole: Role,
+        address: String,
+        name: String? = null,
+        externalId: String? = null,
+    ) {
+        googleUid = externalId
+        role = newRole
         email = address.trim()
         selectedId = 1
-        return true
+        val cleanName = name?.trim()?.takeIf { it.isNotEmpty() } ?: return
+        if (newRole == Role.RESPONSAVEL) {
+            displayName = cleanName
+        } else {
+            val memberIndex = members.indexOfFirst { it.id == selectedId }
+            if (memberIndex >= 0) members[memberIndex] = members[memberIndex].copy(name = cleanName)
+        }
     }
 
     fun setAllowed(name: String, value: Boolean) {

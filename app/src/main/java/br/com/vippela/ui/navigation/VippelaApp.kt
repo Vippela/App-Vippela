@@ -56,7 +56,7 @@ private fun VippelaContent(state: DemoState) {
     val logout: () -> Unit = {
         mainRoutes.forEach { nav.clearBackStack(it) }
         scope.launch { br.com.vippela.auth.GoogleSignIn(context).signOut() }
-        state.role = null
+        state.logout()
         nav.navigate("login") { popUpTo(nav.graph.id) { inclusive = true } }
     }
     LaunchedEffect(route, state.role) {
