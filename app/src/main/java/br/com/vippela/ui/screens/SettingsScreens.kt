@@ -50,7 +50,7 @@ fun ProfileScreen(state: DemoState, go: (String) -> Unit, logout: () -> Unit) {
         if (!state.isParent) SecondaryButton("Meu desempenho") { go("performance") }
         SecondaryButton("Sair da conta", logout)
         Text(
-            "Vippela • versão de demonstração 0.3.0",
+            "Vippela • versão de demonstração 0.4.0",
             style = MaterialTheme.typography.bodySmall,
             color = Muted,
         )

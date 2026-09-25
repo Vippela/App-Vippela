@@ -31,7 +31,7 @@ Outro computador ou uma assinatura de publicação terá certificados diferentes
 
 ## Comportamento atual
 
-Sem configuração, o botão explica que o Google ainda não está ativo e mantém a tela de acesso. Ele não simula um login bem-sucedido. Com configuração, a escolha de perfil é local; as permissões e os vínculos continuam demonstrativos. O servidor de uma versão futura deverá controlar os papéis e os vínculos, sem confiar nessa escolha local.
+Sem configuração, o botão explica que o Google ainda não está ativo e mantém a tela de acesso. Ele não simula um login bem-sucedido. Com configuração, o UID autenticado consulta o perfil salvo no aparelho. Se ainda não existir, a escolha de perfil aparece no cadastro e é salva para os próximos acessos; as permissões e os vínculos continuam demonstrativos. O servidor de uma versão futura deverá controlar os papéis e os vínculos, sem confiar nessa escolha local.
 
 A troca de e-mail e telefone nas configurações altera apenas a apresentação em memória, sem chamar `updateEmail` ou modificar o usuário Firebase. Ao sair, o app encerra a sessão Firebase e limpa o estado do Credential Manager.
 

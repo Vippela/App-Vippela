@@ -1,6 +1,6 @@
 # Recursos visuais
 
-Os vetores das marcas YouTube, Instagram, TikTok, Khan Academy e Google foram obtidos do [Simple Icons](https://github.com/simple-icons/simple-icons), distribuído sob CC0. As marcas pertencem aos respectivos titulares. Os caminhos SVG foram preservados em VectorDrawable Android e exibidos sem distorção de proporções.
+Os vetores das marcas YouTube, Instagram, TikTok, Khan Academy foram obtidos do [Simple Icons](https://github.com/simple-icons/simple-icons), distribuído sob CC0. As marcas pertencem aos respectivos titulares. Os caminhos SVG foram preservados em VectorDrawable Android e exibidos sem distorção de proporções.
 
 As fontes Poppins estão acompanhadas da licença em FONT-LICENSE.txt.
 
@@ -12,3 +12,5 @@ Os arquivos transparentes em `app/src/main/res/drawable-nodpi` são cópias inta
 - Os outros nove PNGs → ícones de loja, YouTube, TikTok, X, Telegram, Spotify, Notion, Netflix e Instagram.
 
 A ilustração de vínculo com a criança nos ombros não foi incluída no ZIP; as duas etapas usam a ilustração disponível. O gráfico e o celular são desenhos nativos em Compose. As fontes permanecem Poppins, sem confirmação dos tokens originais do Figma.
+
+O ícone de login Google é agora um VectorDrawable de quatro cores sem fundo (`ic_google_logo.xml`). O PNG anexado pelo usuário tinha alpha 255 em todos os pixels, inclusive no quadriculado; o recurso monocromático anterior foi removido.

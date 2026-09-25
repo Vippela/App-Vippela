@@ -84,11 +84,11 @@ class NavigationTest {
         compose.onNodeWithText("Sair da conta").performScrollTo().performClick()
         compose.onNodeWithText("Bem-vindo de volta!").assertExists()
         assertNull(state.role)
-        compose.onNodeWithText("E-mail").performTextInput("invalid@example.com")
+        compose.onNodeWithText("E-mail").performTextInput("responsavel@vippela.demo")
         compose.onNodeWithText("Senha").performTextInput("wrongpass")
         compose.onNodeWithText("Entrar", useUnmergedTree = true).performScrollTo().performClick()
         compose
-            .onNodeWithText("Use uma das contas de demonstração e a senha vippela123.")
+            .onNodeWithText("E-mail ou senha incorretos.")
             .assertExists()
         assertNull(state.role)
     }
@@ -138,7 +138,7 @@ class NavigationTest {
     }
 
     @Test
-    fun accessCardsOpenLoginAndRegistrationHasSeparateCenteredChoice() {
+    fun universalAccessHasNoRoleCardsAndRegistrationKeepsChoice() {
         compose.setContent { VippelaApp(state) }
         compose.onNodeWithText("Seja\nbem-vindo!").assertExists()
         screenshot("onboarding")
@@ -147,18 +147,19 @@ class NavigationTest {
             screenshot("onboarding-${step + 2}")
         }
         compose.onNodeWithText("Começar  ›").performClick()
-        compose.onNodeWithText("Acessar como").assertExists()
+        compose.onNodeWithText("Entrar na Vippela").assertExists()
         screenshot("acesso")
         compose.onNodeWithText("Entrar com Google").performScrollTo().performClick()
-        compose.onNode(hasText("Responsável") and hasAnyAncestor(isDialog())).performClick()
+        compose.onNodeWithText("Responsável").assertDoesNotExist()
+        compose.onNodeWithText("Familiar").assertDoesNotExist()
+        compose.onNodeWithText("Facebook").assertDoesNotExist()
         compose
             .onNodeWithText(
                 "O login Google precisa ser ativado pela equipe do aplicativo. Por enquanto, entre com e-mail."
             )
             .assertExists()
         assertNull(state.role)
-        compose.onNodeWithText("Familiar", useUnmergedTree = true).performScrollTo().performClick()
-        compose.onNodeWithText("Acessar como familiar").assertExists()
+        compose.onNodeWithText("Continuar com email").performScrollTo().performClick()
         compose.onNodeWithText("Senha").assertExists()
         compose.onNodeWithText("Criar conta").performScrollTo().performClick()
         compose.onNodeWithText("Cadastrar-se como").assertExists()
@@ -168,4 +169,16 @@ class NavigationTest {
         compose.onNodeWithText("Familiar", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Familiar").assertIsSelected()
     }
+    @Test fun localAccountTypesSurviveStoreRecreation() {
+        val context = compose.activity
+        context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
+        val accounts = br.com.vippela.data.LocalAccounts(context)
+        assertTrue(accounts.register("Ana", "ana@example.com", "secret123", br.com.vippela.data.Role.FAMILIAR))
+        accounts.registerGoogle("uid", "Cleber", "cleber@example.com", br.com.vippela.data.Role.RESPONSAVEL)
+        val restored = br.com.vippela.data.LocalAccounts(context)
+        assertEquals(br.com.vippela.data.Role.FAMILIAR, restored.authenticate("ana@example.com", "secret123")?.role)
+        assertEquals(br.com.vippela.data.Role.RESPONSAVEL, restored.google("uid")?.role)
+        context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
+    }
+
 }

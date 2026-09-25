@@ -111,7 +111,7 @@ val lessons =
         ),
     )
 
-class DemoState : ViewModel() {
+class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewModel() {
     var darkMode by mutableStateOf(false)
     var googleUid by mutableStateOf<String?>(null)
     private val contactEmails = mutableStateMapOf<String, String>()
@@ -181,27 +181,67 @@ class DemoState : ViewModel() {
     val currentName
         get() = if (isParent) displayName else selected.name
 
+    var registrationEmail by mutableStateOf("")
+    var pendingGoogle by mutableStateOf<br.com.vippela.auth.GoogleProfile?>(null)
+        private set
+
+    private fun demoRole(address: String) =
+        when (address.trim().lowercase()) {
+            "responsavel@vippela.demo" -> Role.RESPONSAVEL
+            "familiar@vippela.demo" -> Role.FAMILIAR
+            else -> null
+        }
+
+    fun hasLocalAccount(address: String) = demoRole(address) != null || accounts.contains(address)
+
     fun login(address: String, password: String): Boolean {
-        if (password != "vippela123") return false
-        val authenticatedRole =
-            when (address.trim().lowercase()) {
-                "responsavel@vippela.demo" -> Role.RESPONSAVEL
-                "familiar@vippela.demo" -> Role.FAMILIAR
-                else -> return false
-            }
-        startSession(authenticatedRole, address)
+        val demo = demoRole(address)
+        if (demo != null) {
+            if (password != "vippela123") return false
+            startSession(demo, address)
+            return true
+        }
+        val profile = accounts.authenticate(address, password) ?: return false
+        startSession(profile.role, profile.email, profile.name)
         return true
     }
 
-    fun register(name: String, address: String, newRole: Role) {
+    fun register(
+        name: String,
+        address: String,
+        newRole: Role,
+        password: String = "vippela123",
+    ): Boolean {
+        if (demoRole(address) != null || !accounts.register(name, address, password, newRole))
+            return false
         startSession(newRole, address, name)
+        registrationEmail = ""
+        return true
     }
 
-    fun loginWithGoogle(id: String, name: String, address: String, newRole: Role) {
-        startSession(newRole, address, name, id)
+    fun loginWithGoogle(id: String, name: String, address: String): Boolean {
+        val profile = accounts.google(id)
+        if (profile == null) {
+            pendingGoogle = br.com.vippela.auth.GoogleProfile(id, name, address)
+            return false
+        }
+        pendingGoogle = null
+        startSession(profile.role, address, name, id)
+        return true
+    }
+
+    fun completeGoogleRegistration(newRole: Role) {
+        val google = pendingGoogle ?: return
+        accounts.registerGoogle(google.id, google.name, google.email, newRole)
+        loginWithGoogle(google.id, google.name, google.email)
+    }
+
+    fun cancelGoogleRegistration() {
+        pendingGoogle = null
     }
 
     fun logout() {
+        pendingGoogle = null
         role = null
         googleUid = null
         selectedId = 1

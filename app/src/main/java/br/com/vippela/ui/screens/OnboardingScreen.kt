@@ -1,7 +1,7 @@
 package br.com.vippela.ui.screens
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.zIndex
 import br.com.vippela.R
 import br.com.vippela.ui.theme.*
 import kotlin.math.PI
@@ -54,52 +55,60 @@ fun WelcomeScreen(enter: () -> Unit) {
         )
     androidx.activity.compose.BackHandler(step > 0) { step-- }
     Box(Modifier.fillMaxSize()) {
-        BeeJourneyRoute(
-            step = step,
-            modifier = Modifier.fillMaxWidth().height(122.dp),
-        )
+        BeeJourneyRoute(step = step, modifier = Modifier.fillMaxWidth().height(122.dp).zIndex(1f))
         Column(
-            Modifier.fillMaxSize()
-                .padding(horizontal = 32.dp)
-                .padding(top = 46.dp, bottom = 28.dp)
+            Modifier.fillMaxSize().padding(horizontal = 32.dp).padding(top = 46.dp, bottom = 28.dp)
         ) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                Text(
-                    "0${step + 1}",
-                    Modifier.background(Violet.copy(alpha = .25f), RoundedCornerShape(16.dp))
-                        .padding(horizontal = 7.dp, vertical = 5.dp),
-                    style = titleStyle.copy(fontSize = 36.sp, lineHeight = 42.sp),
-                    color = Violet,
-                )
-                Spacer(Modifier.height(26.dp))
-                Text(titles[step], style = titleStyle)
-                Spacer(Modifier.height(18.dp))
-                Text(descriptions[step], color = Muted, style = bodyStyle)
-                Spacer(Modifier.height(if (step == 4) 34.dp else 56.dp))
-                Box(
-                    Modifier.fillMaxWidth()
-                        .height(if (step == 2) 320.dp else 300.dp)
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    when (step) {
-                        0 ->
-                            Image(
-                                painterResource(R.drawable.onboarding_welcome),
-                                "Criança no balanço",
-                                Modifier.fillMaxSize(.9f),
-                                contentScale = ContentScale.Fit,
-                            )
-                        1 ->
-                            Image(
-                                painterResource(R.drawable.onboarding_family),
-                                "Família de mãos dadas",
-                                Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit,
-                            )
-                        2 -> OnboardingApps()
-                        3 -> ScreenTimeIllustration()
-                        4 -> FriendlyPhone()
+            AnimatedContent(
+                targetState = step,
+                modifier = Modifier.weight(1f),
+                transitionSpec = {
+                    val direction = if (targetState > initialState) 1 else -1
+                    (fadeIn(tween(320)) +
+                        slideInHorizontally(tween(320)) { direction * it / 5 }) togetherWith
+                        (fadeOut(tween(220)) +
+                            slideOutHorizontally(tween(320)) { -direction * it / 5 })
+                },
+                label = "Páginas do onboarding",
+            ) { page ->
+                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                    Text(
+                        "0${page + 1}",
+                        Modifier.background(Violet.copy(alpha = .25f), RoundedCornerShape(16.dp))
+                            .padding(horizontal = 7.dp, vertical = 5.dp),
+                        style = titleStyle.copy(fontSize = 36.sp, lineHeight = 42.sp),
+                        color = Violet,
+                    )
+                    Spacer(Modifier.height(26.dp))
+                    Text(titles[page], style = titleStyle)
+                    Spacer(Modifier.height(18.dp))
+                    Text(descriptions[page], color = Muted, style = bodyStyle)
+                    Spacer(Modifier.height(if (page == 4) 34.dp else 56.dp))
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(if (page == 2) 320.dp else 300.dp)
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        when (page) {
+                            0 ->
+                                Image(
+                                    painterResource(R.drawable.onboarding_welcome),
+                                    "Criança no balanço",
+                                    Modifier.fillMaxSize(.9f),
+                                    contentScale = ContentScale.Fit,
+                                )
+                            1 ->
+                                Image(
+                                    painterResource(R.drawable.onboarding_family),
+                                    "Família de mãos dadas",
+                                    Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Fit,
+                                )
+                            2 -> OnboardingApps()
+                            3 -> ScreenTimeIllustration()
+                            4 -> FriendlyPhone()
+                        }
                     }
                 }
             }
@@ -119,24 +128,20 @@ fun WelcomeScreen(enter: () -> Unit) {
 
 @Composable
 private fun BeeJourneyRoute(step: Int, modifier: Modifier = Modifier) {
-    val progress = remember { Animatable(0f) }
-
-    LaunchedEffect(step) {
-        progress.snapTo(0f)
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis =
-                    when (step) {
-                        1 -> 2_000
-                        2 -> 2_100
-                        3 -> 2_350
-                        else -> 1_750
-                    },
-                easing = FastOutSlowInEasing,
-            ),
-        )
-    }
+    val progress =
+        key(step) {
+            val flight = rememberInfiniteTransition(label = "Trajetória da abelha")
+            flight.animateFloat(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(4_200, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                label = "Posição da abelha",
+            )
+        }
 
     Canvas(
         modifier.clearAndSetSemantics {
@@ -150,17 +155,14 @@ private fun BeeJourneyRoute(step: Int, modifier: Modifier = Modifier) {
         val pathPosition = routeMeasure.getPosition(distance)
         val tangent = routeMeasure.getTangent(distance)
         val tangentLength = sqrt(tangent.x * tangent.x + tangent.y * tangent.y).coerceAtLeast(1f)
-        val flightSway =
-            sin(routeProgress * PI.toFloat() * 12f) * 1.5.dp.toPx()
+        val flightSway = sin(routeProgress * PI.toFloat() * 12f) * 1.5.dp.toPx()
         val beePosition =
             pathPosition +
                 Offset(
                     x = -tangent.y / tangentLength * flightSway,
                     y = tangent.x / tangentLength * flightSway,
                 )
-        val beeAngle = Math.toDegrees(
-            atan2(tangent.y.toDouble(), tangent.x.toDouble())
-        ).toFloat()
+        val beeAngle = Math.toDegrees(atan2(tangent.y.toDouble(), tangent.x.toDouble())).toFloat()
 
         val visibleRoute = Path()
         routeMeasure.getSegment(
@@ -172,14 +174,16 @@ private fun BeeJourneyRoute(step: Int, modifier: Modifier = Modifier) {
         drawPath(
             path = visibleRoute,
             color = Color(0xFF383641),
-            style = Stroke(
-                width = 1.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(
-                    intervals = floatArrayOf(5.dp.toPx(), 7.dp.toPx()),
-                    phase = -distance * .08f,
+            style =
+                Stroke(
+                    width = 1.dp.toPx(),
+                    cap = StrokeCap.Round,
+                    pathEffect =
+                        PathEffect.dashPathEffect(
+                            intervals = floatArrayOf(5.dp.toPx(), 7.dp.toPx()),
+                            phase = -distance * .08f,
+                        ),
                 ),
-            ),
         )
         drawJourneyBee(beePosition, beeAngle)
     }
@@ -188,41 +192,41 @@ private fun BeeJourneyRoute(step: Int, modifier: Modifier = Modifier) {
 private fun DrawScope.onboardingRoute(step: Int): Path {
     fun y(value: Float) = value.dp.toPx()
     val w = size.width
-    val overflow = 18.dp.toPx()
+    val inset = 18.dp.toPx()
 
     return Path().apply {
         when (step) {
             0 -> {
-                moveTo(-overflow, y(8f))
+                moveTo(inset, y(8f))
                 cubicTo(w * .05f, y(36f), w * .13f, y(4f), w * .25f, y(17f))
                 cubicTo(w * .37f, y(34f), w * .45f, y(2f), w * .57f, y(17f))
                 cubicTo(w * .69f, y(36f), w * .78f, y(34f), w * .88f, y(31f))
-                cubicTo(w * .95f, y(29f), w, y(30f), w + overflow, y(27f))
+                cubicTo(w * .95f, y(29f), w, y(30f), w - inset, y(27f))
             }
             1 -> {
                 // A jiboia digerindo o elefante de O Pequeno Príncipe: uma base baixa
                 // e uma elevação assimétrica, que também pode ser vista como um chapéu.
-                moveTo(-overflow, y(27f))
+                moveTo(inset, y(27f))
                 cubicTo(w * .04f, y(29f), w * .06f, y(58f), w * .16f, y(65f))
                 cubicTo(w * .27f, y(73f), w * .38f, y(69f), w * .44f, y(63f))
                 cubicTo(w * .49f, y(57f), w * .50f, y(22f), w * .57f, y(19f))
                 cubicTo(w * .63f, y(16f), w * .66f, y(38f), w * .71f, y(40f))
                 cubicTo(w * .76f, y(42f), w * .79f, y(38f), w * .83f, y(47f))
-                cubicTo(w * .88f, y(59f), w * .88f, y(67f), w + overflow, y(67f))
+                cubicTo(w * .88f, y(59f), w * .88f, y(67f), w - inset, y(67f))
             }
             2 -> {
-                moveTo(-overflow, y(52f))
+                moveTo(inset, y(52f))
                 cubicTo(w * .08f, y(82f), w * .16f, y(57f), w * .26f, y(50f))
                 cubicTo(w * .37f, y(44f), w * .39f, y(72f), w * .50f, y(75f))
                 cubicTo(w * .63f, y(80f), w * .63f, y(59f), w * .58f, y(48f))
                 cubicTo(w * .51f, y(28f), w * .60f, y(4f), w * .70f, y(13f))
                 cubicTo(w * .82f, y(24f), w * .70f, y(43f), w * .72f, y(55f))
                 cubicTo(w * .75f, y(79f), w * .80f, y(80f), w * .85f, y(53f))
-                cubicTo(w * .90f, y(31f), w * .96f, y(39f), w + overflow, y(52f))
+                cubicTo(w * .90f, y(31f), w * .96f, y(39f), w - inset, y(52f))
             }
             3 -> {
                 // Loop completo em torno do cartão 04 antes de a rota seguir adiante.
-                moveTo(-overflow, y(72f))
+                moveTo(inset, y(72f))
                 cubicTo(w * .03f, y(78f), w * .06f, y(76f), w * .08f, y(68f))
                 cubicTo(w * .02f, y(50f), w * .04f, y(18f), w * .13f, y(8f))
                 cubicTo(w * .23f, y(-2f), w * .30f, y(17f), w * .28f, y(43f))
@@ -230,10 +234,10 @@ private fun DrawScope.onboardingRoute(step: Int): Path {
                 cubicTo(w * .25f, y(116f), w * .34f, y(113f), w * .41f, y(103f))
                 cubicTo(w * .54f, y(86f), w * .60f, y(70f), w * .70f, y(78f))
                 cubicTo(w * .82f, y(91f), w * .84f, y(66f), w * .94f, y(60f))
-                cubicTo(w, y(56f), w + overflow, y(48f), w + overflow, y(48f))
+                cubicTo(w, y(56f), w - inset, y(48f), w - inset, y(48f))
             }
             else -> {
-                moveTo(-overflow, y(28f))
+                moveTo(inset, y(28f))
                 cubicTo(w * .10f, y(32f), w * .15f, y(43f), w * .22f, y(21f))
                 cubicTo(w * .31f, y(-3f), w * .37f, y(4f), w * .38f, y(16f))
                 cubicTo(w * .41f, y(31f), w * .37f, y(48f), w * .45f, y(51f))
@@ -417,7 +421,8 @@ private fun ScreenTimeIllustration() {
                 FamilyMetricIcon()
                 Text(
                     "O tempo de tela do seu filho\n60% menor",
-                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    style =
+                        MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                 )
             }
         }
@@ -435,11 +440,12 @@ private fun FamilyMetricIcon() {
         val center = Offset(size.width / 2, size.height / 2)
         val radius = 4.dp.toPx()
         listOf(
-            Offset(center.x, center.y - radius),
-            Offset(center.x + radius, center.y),
-            Offset(center.x, center.y + radius),
-            Offset(center.x - radius, center.y),
-        ).forEach { drawCircle(petal, radius = 3.6.dp.toPx(), center = it) }
+                Offset(center.x, center.y - radius),
+                Offset(center.x + radius, center.y),
+                Offset(center.x, center.y + radius),
+                Offset(center.x - radius, center.y),
+            )
+            .forEach { drawCircle(petal, radius = 3.6.dp.toPx(), center = it) }
         drawCircle(Color.White, radius = 3.dp.toPx(), center = center)
         drawCircle(Violet, radius = 2.dp.toPx(), center = center)
     }

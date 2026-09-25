@@ -14,13 +14,7 @@ import br.com.vippela.ui.components.*
 import br.com.vippela.ui.theme.*
 
 @Composable
-fun LoginScreen(
-    state: DemoState,
-    enter: () -> Unit,
-    register: () -> Unit,
-    recover: () -> Unit,
-    selectedRole: Role? = null,
-) {
+fun LoginScreen(state: DemoState, enter: () -> Unit, register: () -> Unit, recover: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var visible by rememberSaveable { mutableStateOf(false) }
@@ -28,12 +22,6 @@ fun LoginScreen(
     Page {
         Brand()
         Text("Bem-vindo de volta!", style = MaterialTheme.typography.titleLarge)
-        selectedRole?.let {
-            Text(
-                if (it == Role.RESPONSAVEL) "Acessar como responsável" else "Acessar como familiar",
-                color = Muted,
-            )
-        }
         Text("Entre para cuidar da sua vida digital.", color = Muted)
         OutlinedTextField(
             email,
@@ -68,16 +56,13 @@ fun LoginScreen(
             },
             isError = error,
         )
-        if (error) Text("Use uma das contas de demonstração e a senha vippela123.", color = Red)
+        if (error) Text("E-mail ou senha incorretos.", color = Red)
         TextButton(recover, Modifier.align(Alignment.End)) { Text("Esqueci minha senha") }
         PrimaryButton("Entrar", email.isNotBlank() && password.isNotBlank()) {
-            val address = email.trim().lowercase()
-            val expected =
-                if (selectedRole == Role.RESPONSAVEL) "responsavel@vippela.demo"
-                else "familiar@vippela.demo"
-            if ((selectedRole == null || address == expected) && state.login(email, password))
-                enter()
-            else error = true
+            if (!state.hasLocalAccount(email)) {
+                state.registrationEmail = email.trim()
+                register()
+            } else if (state.login(email, password)) enter() else error = true
         }
         SecondaryButton("Criar conta", register)
         Panel {
@@ -102,7 +87,7 @@ fun LoginScreen(
 @Composable
 fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.RESPONSAVEL) {
     var name by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf(state.registrationEmail) }
     var password by rememberSaveable { mutableStateOf("") }
     var role by rememberSaveable {
         mutableIntStateOf(if (initialRole == Role.RESPONSAVEL) 0 else 1)
@@ -137,7 +122,7 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
         )
         if (error)
             Text(
-                "Informe seu nome, um e-mail válido e uma senha de pelo menos 8 caracteres.",
+                "Use um e-mail ainda não cadastrado, nome e senha de pelo menos 8 caracteres.",
                 color = Red,
             )
         PrimaryButton("Criar conta de demonstração") {
@@ -146,16 +131,18 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
                     !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ||
                     password.length < 8
             if (!error) {
-                state.register(
-                    name,
-                    email,
-                    if (role == 0) Role.RESPONSAVEL else Role.FAMILIAR,
-                )
-                done()
+                val created =
+                    state.register(
+                        name,
+                        email,
+                        if (role == 0) Role.RESPONSAVEL else Role.FAMILIAR,
+                        password,
+                    )
+                if (created) done() else error = true
             }
         }
         Text(
-            "Nesta versão, o cadastro existe apenas durante a demonstração. Nenhuma conta é enviada ou criada em um servidor.",
+            "Cadastro de demonstração salvo somente neste aparelho.",
             style = MaterialTheme.typography.bodySmall,
             color = Muted,
         )

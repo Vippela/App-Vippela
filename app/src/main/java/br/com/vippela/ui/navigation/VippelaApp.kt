@@ -1,5 +1,7 @@
 package br.com.vippela.ui.navigation
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,7 +38,6 @@ private fun VippelaContent(state: DemoState) {
     var registrationRole by rememberSaveable {
         mutableStateOf(br.com.vippela.data.Role.RESPONSAVEL)
     }
-    var loginRole by rememberSaveable { mutableStateOf<br.com.vippela.data.Role?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     val nav = rememberNavController()
@@ -171,14 +172,29 @@ private fun VippelaContent(state: DemoState) {
                 },
             ) { padding ->
                 Box(Modifier.padding(padding)) {
-                    NavHost(nav, startDestination = "welcome") {
+                    NavHost(
+                        nav,
+                        startDestination = "welcome",
+                        enterTransition = {
+                            fadeIn(tween(320)) + slideInHorizontally(tween(320)) { it / 4 }
+                        },
+                        exitTransition = {
+                            fadeOut(tween(260)) + slideOutHorizontally(tween(320)) { -it / 4 }
+                        },
+                        popEnterTransition = {
+                            fadeIn(tween(320)) + slideInHorizontally(tween(320)) { -it / 4 }
+                        },
+                        popExitTransition = {
+                            fadeOut(tween(260)) + slideOutHorizontally(tween(320)) { it / 4 }
+                        },
+                    ) {
                         composable("welcome") { WelcomeScreen { nav.navigate("access") } }
                         composable("access") {
                             AccessScreen(
                                 state,
                                 { go("register-choice") },
                                 {
-                                    loginRole = it
+                                    state.cancelGoogleRegistration()
                                     go("login")
                                 },
                                 enter,
@@ -186,8 +202,13 @@ private fun VippelaContent(state: DemoState) {
                         }
                         composable("register-choice") {
                             RegistrationChoiceScreen {
-                                registrationRole = it
-                                go("register")
+                                if (state.pendingGoogle != null) {
+                                    state.completeGoogleRegistration(it)
+                                    enter()
+                                } else {
+                                    registrationRole = it
+                                    go("register")
+                                }
                             }
                         }
                         composable("login") {
@@ -196,7 +217,6 @@ private fun VippelaContent(state: DemoState) {
                                 enter,
                                 { nav.navigate("register-choice") },
                                 { nav.navigate("recover") },
-                                loginRole,
                             )
                         }
                         composable("register") { RegisterScreen(state, enter, registrationRole) }
