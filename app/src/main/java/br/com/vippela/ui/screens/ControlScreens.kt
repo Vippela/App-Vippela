@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import br.com.vippela.data.*
 import br.com.vippela.ui.components.*
 import br.com.vippela.ui.theme.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import br.com.vippela.ui.linking.LinkingUiState
+import br.com.vippela.ui.linking.LinkingViewModel
 
 @Composable
 fun AppsScreen(state: DemoState, go: (String) -> Unit) {
@@ -235,9 +238,22 @@ fun AddMemberScreen(state: DemoState, done: () -> Unit) {
 }
 
 @Composable
-fun PairScreen(state: DemoState, done: () -> Unit) {
+fun PairScreen(state: DemoState, viewModel: LinkingViewModel, done: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var code by rememberSaveable { mutableStateOf("") }
-    var error by rememberSaveable { mutableStateOf(false) }
+
+    val linked = uiState is LinkingUiState.Linked || state.linked
+    val loading = uiState is LinkingUiState.Loading
+    val error = uiState is LinkingUiState.Error
+    val generatedToken = (uiState as? LinkingUiState.CodeReady)?.token
+
+    LaunchedEffect(state.isParent) {
+        if (state.isParent && uiState is LinkingUiState.Idle) {
+            viewModel.generateCode()
+        }
+    }
+
     Page {
         Heading(if (state.isParent) "Gerar código" else "Vincule sua família")
         Panel {
@@ -246,39 +262,54 @@ fun PairScreen(state: DemoState, done: () -> Unit) {
                 if (state.isParent) "Use este código no dispositivo do familiar."
                 else "Digite o código informado pelo seu responsável."
             )
-            if (state.isParent) Text("482 619", style = MaterialTheme.typography.headlineLarge)
+            if (state.isParent) {
+                if (loading && generatedToken == null) {
+                    CircularProgressIndicator()
+                } else if (generatedToken != null) {
+                    Text(generatedToken, style = MaterialTheme.typography.headlineLarge)
+                } else if (error) {
+                    TextButton(onClick = { viewModel.generateCode() }) {
+                        Text("Tentar gerar código novamente")
+                    }
+                }
+            }
         }
         if (!state.isParent) {
             OutlinedTextField(
                 code,
-                {
-                    code = it.filter(Char::isDigit).take(6)
-                    error = false
-                },
+                { code = it.filter(Char::isDigit).take(6) },
                 Modifier.fillMaxWidth(),
                 label = { Text("Código de 6 dígitos") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 isError = error,
+                enabled = !loading,
                 singleLine = true,
-            )
-            Text(
-                "Código da demonstração: 482619",
-                style = MaterialTheme.typography.bodySmall,
-                color = Muted,
             )
         }
         if (error) Text("Confira o código e tente novamente.", color = Red)
-        if (state.linked)
+        if (linked)
             Panel {
                 Icon(Icons.Outlined.CheckCircle, null, tint = Green)
-                Text("Dispositivo vinculado na demonstração.")
+                Text("Dispositivo vinculado.")
             }
-        PrimaryButton(
-            if (state.linked) "Continuar"
-            else if (state.isParent) "Simular vínculo" else "Vincular dispositivo"
-        ) {
-            if (state.linked) done()
-            else if (state.isParent || code == "482619") state.linked = true else error = true
+        if (loading && !state.isParent) {
+            CircularProgressIndicator()
+        } else {
+            PrimaryButton(
+                if (linked) "Continuar"
+                else if (state.isParent) "Aguardando vínculo" else "Vincular dispositivo",
+                enabled = linked || !state.isParent,
+            ) {
+                if (linked) {
+                    done()
+                } else {
+                    val deviceId = android.provider.Settings.Secure.getString(
+                        context.contentResolver,
+                        android.provider.Settings.Secure.ANDROID_ID
+                    )
+                    viewModel.confirmCode(code, deviceId)
+                }
+            }
         }
     }
 }

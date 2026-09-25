@@ -22,6 +22,9 @@ import br.com.vippela.ui.components.Header
 import br.com.vippela.ui.screens.*
 import br.com.vippela.ui.theme.*
 import kotlinx.coroutines.launch
+import br.com.vippela.data.linking.DeviceLinkRepository
+import br.com.vippela.ui.linking.LinkingViewModel
+import br.com.vippela.ui.linking.LinkingViewModelFactory
 
 private val mainRoutes = listOf("home", "learn", "reports", "profile")
 private val authRoutes =
@@ -236,8 +239,13 @@ private fun VippelaContent(state: DemoState) {
                             ReleaseScreen(state, it.arguments?.getString("app") ?: "YouTube")
                         }
                         composable("pair") {
-                            if (state.isParent) PairScreen(state) { go("home") }
-                            else FamilyConnectionScreen(state, back) { go("home") }
+                            val linkingViewModel: LinkingViewModel = viewModel(
+                                factory = LinkingViewModelFactory(
+                                    DeviceLinkRepository(br.com.vippela.data.linking.NetworkModule.deviceLinkApi)
+                                )
+                            )
+                            if (state.isParent) PairScreen(state, linkingViewModel) { go("home") }
+                            else FamilyConnectionScreen(state, back, { go("home") }, linkingViewModel)
                         }
                         composable("add-member") {
                             if (state.isParent)

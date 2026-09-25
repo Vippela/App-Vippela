@@ -1,5 +1,6 @@
 package br.com.vippela.ui.screens
 
+import android.provider.Settings
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,19 +11,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.vippela.data.DemoState
 import br.com.vippela.ui.components.*
+import br.com.vippela.ui.linking.LinkingUiState
+import br.com.vippela.ui.linking.LinkingViewModel
 import br.com.vippela.ui.theme.*
 
 @Composable
-fun FamilyConnectionScreen(state: DemoState, back: () -> Unit, done: () -> Unit) {
-    var connected by rememberSaveable { mutableStateOf(state.linked) }
+fun FamilyConnectionScreen(
+    state: DemoState,
+    back: () -> Unit,
+    done: () -> Unit,
+    viewModel: LinkingViewModel,
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var code by rememberSaveable { mutableStateOf("") }
-    var error by rememberSaveable { mutableStateOf(false) }
     var help by rememberSaveable { mutableStateOf(false) }
+
+    val connected = uiState is LinkingUiState.Linked || state.linked
+    val loading = uiState is LinkingUiState.Loading
+    val error = uiState is LinkingUiState.Error
+
     Column(
         Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())
@@ -87,12 +102,10 @@ fun FamilyConnectionScreen(state: DemoState, back: () -> Unit, done: () -> Unit)
         } else {
             OutlinedTextField(
                 code,
-                {
-                    code = it.filter(Char::isDigit).take(6)
-                    error = false
-                },
+                { code = it.filter(Char::isDigit).take(6) },
                 Modifier.fillMaxWidth(),
                 singleLine = true,
+                enabled = !loading,
                 placeholder = {
                     Text(
                         "— — — — — —",
@@ -117,12 +130,20 @@ fun FamilyConnectionScreen(state: DemoState, back: () -> Unit, done: () -> Unit)
             if (error) Text("Confira o código e tente novamente.", color = Red)
         }
         Spacer(Modifier.height(48.dp))
-        PrimaryButton(if (connected) "Começar" else "Conectar", connected || code.length == 6) {
-            if (connected) done()
-            else if (code == "482619") {
-                state.linked = true
-                connected = true
-            } else error = true
+        if (loading) {
+            CircularProgressIndicator()
+        } else {
+            PrimaryButton(if (connected) "Começar" else "Conectar", connected || code.length == 6) {
+                if (connected) {
+                    done()
+                } else {
+                    val deviceId = Settings.Secure.getString(
+                        context.contentResolver,
+                        Settings.Secure.ANDROID_ID
+                    )
+                    viewModel.confirmCode(code, deviceId)
+                }
+            }
         }
         TextButton({ help = true }) {
             Text(
@@ -142,7 +163,7 @@ fun FamilyConnectionScreen(state: DemoState, back: () -> Unit, done: () -> Unit)
                     if (connected)
                         "Sua família pode combinar limites e acompanhar atividades. Os dados desta versão são demonstrativos."
                     else
-                        "Peça o código ao responsável em Vínculo familiar. Para testar, use 482619."
+                        "Peça o código ao responsável em Vínculo familiar."
                 )
             },
             confirmButton = { TextButton({ help = false }) { Text("Entendi") } },
