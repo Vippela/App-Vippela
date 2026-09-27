@@ -1,3 +1,17 @@
+# Integração de bloqueio por vínculo — 0.5.0
+
+O app agora consulta os aplicativos elegíveis do familiar vinculado e envia permissões reais pelo backend. As instruções de servidor, pareamento, acessibilidade, protocolo e limitações estão no README do projeto `backend-Vippela`.
+
+Configure a mesma URL em **Perfil → Vínculo familiar → Configurar servidor** nos dois celulares. Gere o código no responsável, confirme no familiar e ative **Proteção familiar Vippela** em Acessibilidade. Em **Aplicativos**, o responsável altera as permissões e acompanha a confirmação do aparelho. A última regra recebida fica salva para uso offline; novas regras precisam de conexão.
+
+A autorização é por chaves de vínculo separadas por conta/perfil/servidor nesta instalação. Cadastros locais, dados de acompanhamento e pedidos antigos continuam demonstrativos. Nenhum perfil de demonstração recebe um bloqueio real sem pareamento. A proteção depende do serviço de acessibilidade ativo e retorna à tela inicial ao detectar o app bloqueado; não é suspensão de pacotes pelo sistema.
+
+Para rodar o backend, configure `VIPPELA_DB_PASSWORD`. HTTP é permitido somente no APK debug para teste em rede local; release exige HTTPS. O código fixo `482619` foi removido do fluxo real. O JDK dos testes Robolectric é fixado em 21.
+
+---
+
+## Histórico anterior (UI de demonstração)
+
 # Vippela Android — 0.4.0
 
 Aplicativo nativo Kotlin + Jetpack Compose com navegação entre as visões de responsável e familiar. Dados de acompanhamento, vínculos, relatórios e atividades são demonstrativos.

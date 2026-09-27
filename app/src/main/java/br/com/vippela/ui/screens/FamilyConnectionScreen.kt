@@ -1,6 +1,5 @@
 package br.com.vippela.ui.screens
 
-import android.provider.Settings
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,32 +10,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.vippela.data.DemoState
 import br.com.vippela.ui.components.*
-import br.com.vippela.ui.linking.LinkingUiState
-import br.com.vippela.ui.linking.LinkingViewModel
 import br.com.vippela.ui.theme.*
 
 @Composable
-fun FamilyConnectionScreen(
-    state: DemoState,
-    back: () -> Unit,
-    done: () -> Unit,
-    viewModel: LinkingViewModel,
-) {
-    val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+fun FamilyConnectionScreen(state: DemoState, back: () -> Unit, done: () -> Unit) {
     var code by rememberSaveable { mutableStateOf("") }
     var help by rememberSaveable { mutableStateOf(false) }
 
-    val connected = uiState is LinkingUiState.Linked || state.linked
-    val loading = uiState is LinkingUiState.Loading
-    val error = uiState is LinkingUiState.Error
+    val connected = state.linked
+    val loading = state.linkBusy
+    val error = state.linkError?.startsWith("Confira o código") == true
 
     Column(
         Modifier.fillMaxSize()
@@ -44,6 +32,7 @@ fun FamilyConnectionScreen(
             .padding(horizontal = 32.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        ServerConfiguration(state)
         if (!connected) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Voltar") }
@@ -70,7 +59,7 @@ fun FamilyConnectionScreen(
             )
             Spacer(Modifier.height(14.dp))
             Text(
-                "Agora você e ${state.displayName} têm um vínculo!",
+                "Agora você e ${state.childLink?.ownerName.orEmpty()} têm um vínculo!",
                 color = Muted,
                 textAlign = TextAlign.Center,
             )
@@ -80,11 +69,11 @@ fun FamilyConnectionScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Avatar(state.displayName, 40.dp, state.photos["parent"])
+                    Avatar(state.childLink?.ownerName.orEmpty(), 40.dp, state.photos["parent"])
                     Column {
                         Text("Conectado a")
                         Text(
-                            state.displayName,
+                            state.childLink?.ownerName.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
                             color = Muted,
                         )
@@ -127,8 +116,9 @@ fun FamilyConnectionScreen(
                         focusedBorderColor = Orange,
                     ),
             )
-            if (error) Text("Confira o código e tente novamente.", color = Red)
         }
+        if (connected) ProtectionSetup()
+        RemoteError(state)
         Spacer(Modifier.height(48.dp))
         if (loading) {
             CircularProgressIndicator()
@@ -137,11 +127,7 @@ fun FamilyConnectionScreen(
                 if (connected) {
                     done()
                 } else {
-                    val deviceId = Settings.Secure.getString(
-                        context.contentResolver,
-                        Settings.Secure.ANDROID_ID
-                    )
-                    viewModel.confirmCode(code, deviceId)
+                    state.confirmLinkCode(code)
                 }
             }
         }
@@ -162,8 +148,7 @@ fun FamilyConnectionScreen(
                 Text(
                     if (connected)
                         "Sua família pode combinar limites e acompanhar atividades. Os dados desta versão são demonstrativos."
-                    else
-                        "Peça o código ao responsável em Vínculo familiar."
+                    else "Peça o código ao responsável em Vínculo familiar."
                 )
             },
             confirmButton = { TextButton({ help = false }) { Text("Entendi") } },

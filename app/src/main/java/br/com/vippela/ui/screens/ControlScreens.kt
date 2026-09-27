@@ -14,58 +14,8 @@ import androidx.compose.ui.unit.dp
 import br.com.vippela.data.*
 import br.com.vippela.ui.components.*
 import br.com.vippela.ui.theme.*
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import br.com.vippela.ui.linking.LinkingUiState
-import br.com.vippela.ui.linking.LinkingViewModel
 
-@Composable
-fun AppsScreen(state: DemoState, go: (String) -> Unit) {
-    var query by rememberSaveable { mutableStateOf("") }
-    Page {
-        Text(
-            if (state.isParent) "Escolha os aplicativos permitidos para ${state.selected.name}."
-            else "Confira seus aplicativos e os combinados da família.",
-            color = Muted,
-        )
-        OutlinedTextField(
-            query,
-            { query = it },
-            Modifier.fillMaxWidth(),
-            label = { Text("Pesquisar aplicativos") },
-            leadingIcon = { Icon(Icons.Outlined.Search, null) },
-            singleLine = true,
-        )
-        val filtered =
-            state.apps.getValue(state.selectedId).filter { it.name.contains(query, true) }
-        if (filtered.isEmpty()) Panel { Text("Nenhum aplicativo encontrado.") }
-        filtered.forEach { app ->
-            Panel {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    AppSymbol(app.name)
-                    Column(Modifier.weight(1f)) {
-                        Text(app.name)
-                        Text(
-                            "${duration(app.minutes)} hoje",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Muted,
-                        )
-                        Text(
-                            if (app.allowed) "Permitido" else "Não permitido",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (app.allowed) Green else Muted,
-                        )
-                    }
-                    if (state.isParent) Switch(app.allowed, { state.setAllowed(app.name, it) })
-                }
-                if (!state.isParent && !app.allowed)
-                    SecondaryButton("Pedir liberação") { go("release/${app.name}") }
-            }
-        }
-    }
-}
+@Composable fun AppsScreen(state: DemoState, go: (String) -> Unit) = LinkedAppsScreen(state, go)
 
 @Composable
 fun LimitsScreen(state: DemoState, back: () -> Unit) {
@@ -99,6 +49,15 @@ fun LimitsScreen(state: DemoState, back: () -> Unit) {
 
 @Composable
 fun ReleaseScreen(state: DemoState, initialApp: String) {
+    if (state.linked) {
+        Page {
+            Heading("Liberação de aplicativo")
+            Text(
+                "Converse com seu responsável. Ele pode liberar o aplicativo pela tela Aplicativos no celular dele."
+            )
+        }
+        return
+    }
     var app by rememberSaveable { mutableStateOf(initialApp) }
     var message by rememberSaveable { mutableStateOf("") }
     var sent by rememberSaveable { mutableStateOf(false) }
@@ -167,7 +126,16 @@ fun ReleaseScreen(state: DemoState, initialApp: String) {
 }
 
 @Composable
-fun RequestsScreen(state: DemoState) {
+fun RequestsScreen(state: DemoState, go: (String) -> Unit) {
+    if (state.linked) {
+        Page {
+            Text(
+                "As permissões de ${state.selected.name} são controladas pela lista de aplicativos do aparelho vinculado."
+            )
+            PrimaryButton("Ver aplicativos") { go("apps") }
+        }
+        return
+    }
     Page {
         Text("Acompanhe os pedidos da família.", color = Muted)
         RequestCards(state, true)
@@ -238,79 +206,35 @@ fun AddMemberScreen(state: DemoState, done: () -> Unit) {
 }
 
 @Composable
-fun PairScreen(state: DemoState, viewModel: LinkingViewModel, done: () -> Unit) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var code by rememberSaveable { mutableStateOf("") }
-
-    val linked = uiState is LinkingUiState.Linked || state.linked
-    val loading = uiState is LinkingUiState.Loading
-    val error = uiState is LinkingUiState.Error
-    val generatedToken = (uiState as? LinkingUiState.CodeReady)?.token
-
-    LaunchedEffect(state.isParent) {
-        if (state.isParent && uiState is LinkingUiState.Idle) {
-            viewModel.generateCode()
-        }
-    }
-
+fun PairScreen(state: DemoState, done: () -> Unit) {
     Page {
-        Heading(if (state.isParent) "Gerar código" else "Vincule sua família")
-        Panel {
-            Icon(Icons.Outlined.Link, null, Modifier.size(56.dp), tint = Violet)
-            Text(
-                if (state.isParent) "Use este código no dispositivo do familiar."
-                else "Digite o código informado pelo seu responsável."
-            )
-            if (state.isParent) {
-                if (loading && generatedToken == null) {
-                    CircularProgressIndicator()
-                } else if (generatedToken != null) {
-                    Text(generatedToken, style = MaterialTheme.typography.headlineLarge)
-                } else if (error) {
-                    TextButton(onClick = { viewModel.generateCode() }) {
-                        Text("Tentar gerar código novamente")
-                    }
-                }
-            }
-        }
-        if (!state.isParent) {
-            OutlinedTextField(
-                code,
-                { code = it.filter(Char::isDigit).take(6) },
-                Modifier.fillMaxWidth(),
-                label = { Text("Código de 6 dígitos") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = error,
-                enabled = !loading,
-                singleLine = true,
-            )
-        }
-        if (error) Text("Confira o código e tente novamente.", color = Red)
-        if (linked)
+        Heading("Vincular ${state.selected.name}")
+        ServerConfiguration(state)
+        val link = state.currentLink
+        if (link != null) {
             Panel {
                 Icon(Icons.Outlined.CheckCircle, null, tint = Green)
-                Text("Dispositivo vinculado.")
+                Text("Dispositivo vinculado a ${link.memberName}.")
             }
-        if (loading && !state.isParent) {
-            CircularProgressIndicator()
+            PrimaryButton("Continuar", onClick = done)
         } else {
+            Panel {
+                Text("Gere um código e digite-o no celular do familiar.")
+                state.linkCode
+                    ?.takeIf { it.memberKey == state.selectedId.toString() }
+                    ?.let {
+                        Text(it.token, style = MaterialTheme.typography.headlineLarge)
+                        Text("Válido por 5 minutos. A confirmação aparecerá aqui automaticamente.")
+                    }
+            }
             PrimaryButton(
-                if (linked) "Continuar"
-                else if (state.isParent) "Aguardando vínculo" else "Vincular dispositivo",
-                enabled = linked || !state.isParent,
+                if (state.linkCode == null) "Gerar código" else "Gerar novo código",
+                !state.linkBusy,
             ) {
-                if (linked) {
-                    done()
-                } else {
-                    val deviceId = android.provider.Settings.Secure.getString(
-                        context.contentResolver,
-                        android.provider.Settings.Secure.ANDROID_ID
-                    )
-                    viewModel.confirmCode(code, deviceId)
-                }
+                state.generateLinkCode()
             }
         }
+        RemoteError(state)
     }
 }
 

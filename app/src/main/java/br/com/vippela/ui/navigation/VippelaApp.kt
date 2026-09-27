@@ -22,9 +22,6 @@ import br.com.vippela.ui.components.Header
 import br.com.vippela.ui.screens.*
 import br.com.vippela.ui.theme.*
 import kotlinx.coroutines.launch
-import br.com.vippela.data.linking.DeviceLinkRepository
-import br.com.vippela.ui.linking.LinkingViewModel
-import br.com.vippela.ui.linking.LinkingViewModelFactory
 
 private val mainRoutes = listOf("home", "learn", "reports", "profile")
 private val authRoutes =
@@ -42,6 +39,9 @@ private fun VippelaContent(state: DemoState) {
         mutableStateOf(br.com.vippela.data.Role.RESPONSAVEL)
     }
     val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(state.role, state.email, state.googleUid) {
+        state.attachLinks(br.com.vippela.data.linking.LinkStore(context))
+    }
     val scope = rememberCoroutineScope()
     val nav = rememberNavController()
     val entry by nav.currentBackStackEntryAsState()
@@ -233,19 +233,14 @@ private fun VippelaContent(state: DemoState) {
                         composable("settings") { SettingsScreen(state, go) }
                         composable("apps") { AppsScreen(state, go) }
                         composable("limits") { if (state.isParent) LimitsScreen(state, back) }
-                        composable("requests") { if (state.isParent) RequestsScreen(state) }
+                        composable("requests") { if (state.isParent) RequestsScreen(state, go) }
                         composable("release") { ReleaseScreen(state, "YouTube") }
                         composable("release/{app}") {
                             ReleaseScreen(state, it.arguments?.getString("app") ?: "YouTube")
                         }
                         composable("pair") {
-                            val linkingViewModel: LinkingViewModel = viewModel(
-                                factory = LinkingViewModelFactory(
-                                    DeviceLinkRepository(br.com.vippela.data.linking.NetworkModule.deviceLinkApi)
-                                )
-                            )
-                            if (state.isParent) PairScreen(state, linkingViewModel) { go("home") }
-                            else FamilyConnectionScreen(state, back, { go("home") }, linkingViewModel)
+                            if (state.isParent) PairScreen(state) { go("home") }
+                            else FamilyConnectionScreen(state, back, { go("home") })
                         }
                         composable("add-member") {
                             if (state.isParent)

@@ -2,6 +2,10 @@ package br.com.vippela.data
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import br.com.vippela.data.linking.*
+import br.com.vippela.data.linking.model.*
+import kotlinx.coroutines.*
 
 enum class Role {
     RESPONSAVEL,
@@ -172,7 +176,176 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
             members.forEach { put(it.id, listOf(Goal("Estudar", 120), Goal("Dormir", 480))) }
         }
     val completed = mutableStateMapOf<String, Boolean>()
-    var linked by mutableStateOf(false)
+    val linked
+        get() = currentLink?.status == "active"
+
+    var remoteLinks by mutableStateOf<List<DeviceLinkResponse>>(emptyList())
+        private set
+
+    var childLink by mutableStateOf<DeviceLinkResponse?>(null)
+        private set
+
+    val currentLink
+        get() =
+            if (isParent) remoteLinks.firstOrNull { it.memberKey == selectedId.toString() }
+            else childLink
+
+    var linkCode by mutableStateOf<LinkCodeResponse?>(null)
+        private set
+
+    var linkError by mutableStateOf<String?>(null)
+        private set
+
+    var linkBusy by mutableStateOf(false)
+        private set
+
+    var serverAddress by mutableStateOf("")
+        private set
+
+    private var linkStore: LinkStore? = null
+    private var linkRepository: DeviceLinkRepository? = null
+    private var remoteJob: Job? = null
+    private var remoteAction: Job? = null
+    private var sessionGeneration = 0
+
+    fun attachLinks(store: LinkStore) {
+        sessionGeneration++
+        remoteJob?.cancel()
+        remoteAction?.cancel()
+        linkStore = store
+        serverAddress = store.server
+        remoteLinks = emptyList()
+        childLink = null
+        linkCode = null
+        linkError = null
+        linkBusy = false
+        linkRepository = null
+        if (role == null) return
+        val account = googleUid?.let { "google:$it" } ?: "email:${email.trim().lowercase()}"
+        val scope = store.scope(account + ":" + role!!.name)
+        store.activate(if (isParent) null else scope)
+        if (!store.configured) return
+        val repository = DeviceLinkRepository(store, scope)
+        linkRepository = repository
+        if (!isParent) childLink = store.cached(scope) else linkCode = store.pending(scope)
+        val parent = isParent
+        remoteJob =
+            viewModelScope.launch {
+                while (isActive) {
+                    try {
+                        if (parent) {
+                            val received = repository.list()
+                            remoteLinks =
+                                received.map { incoming ->
+                                    remoteLinks.firstOrNull {
+                                        it.id == incoming.id && it.revision > incoming.revision
+                                    } ?: incoming
+                                }
+                            remoteLinks.forEach { link ->
+                                val id = link.memberKey.toIntOrNull() ?: return@forEach
+                                val index = members.indexOfFirst { it.id == id }
+                                if (index >= 0)
+                                    members[index] = members[index].copy(name = link.memberName)
+                                else {
+                                    members.add(FamilyMember(id, link.memberName, 0, 0, "Baixo"))
+                                    limits[id] = 180
+                                    apps[id] = emptyList()
+                                    goals[id] = emptyList()
+                                }
+                            }
+                            val pending = linkCode
+                            if (
+                                pending != null && repository.status(pending.id).status == "active"
+                            ) {
+                                store.savePending(scope, null)
+                                linkCode = null
+                            }
+                        } else {
+                            childLink = repository.sync() ?: childLink
+                        }
+                        linkError = null
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        linkError = remoteMessage(e)
+                    }
+                    delay(5000)
+                }
+            }
+    }
+
+    fun configureServer(value: String): Boolean {
+        if (!NetworkModule.validUrl(value.trim())) {
+            linkError = "Informe uma URL válida. Use HTTPS fora da versão de testes."
+            return false
+        }
+        val store = linkStore ?: return false
+        store.server = value
+        attachLinks(store)
+        return true
+    }
+
+    fun generateLinkCode() {
+        val member = selected
+        val owner = displayName
+        remoteOperation { repository ->
+            linkCode = repository.generate(member.id.toString(), member.name, owner)
+        }
+    }
+
+    fun confirmLinkCode(code: String) {
+        remoteOperation { repository ->
+            childLink = repository.confirm(code)
+            childLink = repository.sync() ?: childLink
+        }
+    }
+
+    fun changeRemoteRule(packageName: String, blocked: Boolean) {
+        val id = currentLink?.id ?: return
+        if (!isParent) return
+        remoteOperation { repository ->
+            val updated = repository.rule(id, packageName, blocked)
+            remoteLinks = remoteLinks.map { if (it.id == id) updated else it }
+        }
+    }
+
+    private fun remoteOperation(action: suspend (DeviceLinkRepository) -> Unit) {
+        if (linkBusy) return
+        val repository =
+            linkRepository
+                ?: run {
+                    linkError = "Configure o servidor do vínculo nos dois celulares."
+                    return
+                }
+        linkBusy = true
+        linkError = null
+        val generation = sessionGeneration
+        remoteAction =
+            viewModelScope.launch {
+                try {
+                    action(repository)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    if (generation == sessionGeneration) linkError = remoteMessage(e)
+                } finally {
+                    if (generation == sessionGeneration) linkBusy = false
+                }
+            }
+    }
+
+    private fun remoteMessage(error: Exception): String =
+        when ((error as? retrofit2.HttpException)?.code()) {
+            400 -> "Confira o código e os dados enviados."
+            401,
+            403 -> "Este acesso não pertence ao vínculo selecionado."
+            404 -> "Vínculo não encontrado neste servidor."
+            409 -> "Este familiar ou aparelho já possui um vínculo."
+            410 -> "O código expirou. Peça um novo ao responsável."
+            429 -> "Muitas tentativas. Aguarde um minuto."
+            else -> "Não foi possível sincronizar. Confira o servidor e a conexão."
+        }
+
     var notifications by mutableStateOf(true)
     var reminders by mutableStateOf(true)
     val isParent
@@ -241,6 +414,15 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
     }
 
     fun logout() {
+        sessionGeneration++
+        remoteJob?.cancel()
+        remoteAction?.cancel()
+        linkStore?.activate(null)
+        linkRepository = null
+        remoteLinks = emptyList()
+        childLink = null
+        linkCode = null
+        linkBusy = false
         pendingGoogle = null
         role = null
         googleUid = null
@@ -264,11 +446,6 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
             val memberIndex = members.indexOfFirst { it.id == selectedId }
             if (memberIndex >= 0) members[memberIndex] = members[memberIndex].copy(name = cleanName)
         }
-    }
-
-    fun setAllowed(name: String, value: Boolean) {
-        apps[selectedId] =
-            apps.getValue(selectedId).map { if (it.name == name) it.copy(allowed = value) else it }
     }
 
     fun requestApp(name: String, message: String) {

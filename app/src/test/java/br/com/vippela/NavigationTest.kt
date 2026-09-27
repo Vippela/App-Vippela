@@ -87,9 +87,7 @@ class NavigationTest {
         compose.onNodeWithText("E-mail").performTextInput("responsavel@vippela.demo")
         compose.onNodeWithText("Senha").performTextInput("wrongpass")
         compose.onNodeWithText("Entrar", useUnmergedTree = true).performScrollTo().performClick()
-        compose
-            .onNodeWithText("E-mail ou senha incorretos.")
-            .assertExists()
+        compose.onNodeWithText("E-mail ou senha incorretos.").assertExists()
         assertNull(state.role)
     }
 
@@ -120,21 +118,16 @@ class NavigationTest {
     }
 
     @Test
-    fun familyConnectionRequiresCorrectCodeAndShowsConfirmation() {
+    fun familyConnectionDoesNotAcceptTheOldDemoCodeWithoutAServer() {
         start("familiar@vippela.demo")
         compose.onNodeWithText("Perfil").performClick()
         compose.onNodeWithText("Vínculo familiar").performScrollTo().performClick()
-        compose.onNode(hasSetTextAction()).performTextInput("111111")
-        compose.onNodeWithText("Conectar").performScrollTo().performClick()
-        compose.onNodeWithText("Confira o código e tente novamente.").assertExists()
+        compose.onNodeWithText("Servidor da família").assertExists()
         assertFalse(state.linked)
-        compose.onNode(hasSetTextAction()).performTextReplacement("482619")
-        compose.onNodeWithText("Conectar").performScrollTo().performClick()
-        compose.onNodeWithText("Você está conectado\ncom sua família!").assertExists()
-        assertTrue(state.linked)
-        screenshot("vinculo-confirmado")
-        compose.onNodeWithText("Começar").performScrollTo().performClick()
-        compose.onNodeWithText("Olá, Marina!").assertExists()
+        compose.runOnIdle { state.confirmLinkCode("482619") }
+        compose.onNodeWithText("Configure o servidor do vínculo nos dois celulares.").assertExists()
+        screenshot("vinculo-servidor")
+        assertFalse(state.linked)
     }
 
     @Test
@@ -169,16 +162,32 @@ class NavigationTest {
         compose.onNodeWithText("Familiar", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Familiar").assertIsSelected()
     }
-    @Test fun localAccountTypesSurviveStoreRecreation() {
+
+    @Test
+    fun localAccountTypesSurviveStoreRecreation() {
         val context = compose.activity
         context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
         val accounts = br.com.vippela.data.LocalAccounts(context)
-        assertTrue(accounts.register("Ana", "ana@example.com", "secret123", br.com.vippela.data.Role.FAMILIAR))
-        accounts.registerGoogle("uid", "Cleber", "cleber@example.com", br.com.vippela.data.Role.RESPONSAVEL)
+        assertTrue(
+            accounts.register(
+                "Ana",
+                "ana@example.com",
+                "secret123",
+                br.com.vippela.data.Role.FAMILIAR,
+            )
+        )
+        accounts.registerGoogle(
+            "uid",
+            "Cleber",
+            "cleber@example.com",
+            br.com.vippela.data.Role.RESPONSAVEL,
+        )
         val restored = br.com.vippela.data.LocalAccounts(context)
-        assertEquals(br.com.vippela.data.Role.FAMILIAR, restored.authenticate("ana@example.com", "secret123")?.role)
+        assertEquals(
+            br.com.vippela.data.Role.FAMILIAR,
+            restored.authenticate("ana@example.com", "secret123")?.role,
+        )
         assertEquals(br.com.vippela.data.Role.RESPONSAVEL, restored.google("uid")?.role)
         context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
     }
-
 }

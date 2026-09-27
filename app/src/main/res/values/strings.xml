@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Vippela</string>
+    <string name="protection_name">Proteção familiar Vippela</string>
+    <string name="protection_description">Identifica qual aplicativo foi aberto e volta à tela inicial quando ele está bloqueado pelo responsável vinculado. Não lê mensagens, senhas nem o conteúdo das telas. As regras e os nomes dos apps elegíveis são sincronizados com o servidor da família.</string>
 </resources>
