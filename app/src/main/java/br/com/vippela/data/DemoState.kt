@@ -3,6 +3,10 @@ package br.com.vippela.data
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.vippela.data.auth.AuthGateway
+import br.com.vippela.data.auth.AuthRepository
+import br.com.vippela.data.auth.SessaoLocal
+import br.com.vippela.data.auth.SessionStore
 import br.com.vippela.data.linking.*
 import br.com.vippela.data.linking.model.*
 import kotlinx.coroutines.*
@@ -115,14 +119,25 @@ val lessons =
         ),
     )
 
-class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewModel() {
+class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
     var darkMode by mutableStateOf(false)
-    var googleUid by mutableStateOf<String?>(null)
+
+    /** Id da conta no servidor; separa o vínculo de cada pessoa. */
+    var usuarioId by mutableStateOf<String?>(null)
+        private set
+
+    var entrouComGoogle by mutableStateOf(false)
+        private set
+
+    /** Muda a cada login/logout para a tela recarregar o escopo de vínculo. */
+    var sessaoGeracao by mutableIntStateOf(0)
+        private set
+
     private val contactEmails = mutableStateMapOf<String, String>()
     private val contactPhones = mutableStateMapOf<String, String>()
     val photos = mutableStateMapOf<String, String>()
     val profileKey
-        get() = googleUid?.let { "google:$it" } ?: if (isParent) "parent" else "member:$selectedId"
+        get() = usuarioId?.let { "user:$it" } ?: if (isParent) "parent" else "member:$selectedId"
 
     var contactEmail: String
         get() = contactEmails[profileKey] ?: email
@@ -144,7 +159,7 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
 
     var role by mutableStateOf<Role?>(null)
     var displayName by mutableStateOf("Cleber")
-    var email by mutableStateOf("responsavel@vippela.demo")
+    var email by mutableStateOf("")
     var selectedId by mutableIntStateOf(1)
     val members =
         mutableStateListOf(
@@ -221,7 +236,7 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
         linkBusy = false
         linkRepository = null
         if (role == null) return
-        val account = googleUid?.let { "google:$it" } ?: "email:${email.trim().lowercase()}"
+        val account = usuarioId ?: "email:${email.trim().lowercase()}"
         val scope = store.scope(account + ":" + role!!.name)
         store.activate(if (isParent) null else scope)
         if (!store.configured) return
@@ -358,59 +373,91 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
     var pendingGoogle by mutableStateOf<br.com.vippela.auth.GoogleProfile?>(null)
         private set
 
-    private fun demoRole(address: String) =
-        when (address.trim().lowercase()) {
-            "responsavel@vippela.demo" -> Role.RESPONSAVEL
-            "familiar@vippela.demo" -> Role.FAMILIAR
-            else -> null
-        }
+    /** Mensagem do último login/cadastro que deu errado, para a tela mostrar. */
+    var authError by mutableStateOf<String?>(null)
+        private set
 
-    fun hasLocalAccount(address: String) = demoRole(address) != null || accounts.contains(address)
+    var authBusy by mutableStateOf(false)
+        private set
 
-    fun login(address: String, password: String): Boolean {
-        val demo = demoRole(address)
-        if (demo != null) {
-            if (password != "vippela123") return false
-            startSession(demo, address)
-            return true
+    val servidorPronto
+        get() = auth?.servidorConfigurado == true
+
+    private val authScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    private fun autenticar(
+        chamada: suspend () -> SessaoLocal,
+        concluido: (Boolean) -> Unit,
+    ) {
+        val gateway = auth
+        if (gateway == null) {
+            authError = "Este aplicativo ainda não foi conectado a um servidor."
+            concluido(false)
+            return
         }
-        val profile = accounts.authenticate(address, password) ?: return false
-        startSession(profile.role, profile.email, profile.name)
-        return true
+        if (authBusy) return
+        authBusy = true
+        authError = null
+        authScope.launch {
+            try {
+                aplicarSessao(chamada())
+                concluido(true)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (e: Exception) {
+                authError = AuthRepository.mensagemDeErro(e)
+                concluido(false)
+            } finally {
+                authBusy = false
+            }
+        }
+    }
+
+    fun login(address: String, password: String, concluido: (Boolean) -> Unit = {}) {
+        autenticar({ requireNotNull(auth).entrar(address, password) }, concluido)
     }
 
     fun register(
         name: String,
         address: String,
+        password: String,
         newRole: Role,
-        password: String = "vippela123",
-    ): Boolean {
-        if (demoRole(address) != null || !accounts.register(name, address, password, newRole))
-            return false
-        startSession(newRole, address, name)
-        registrationEmail = ""
-        return true
+        concluido: (Boolean) -> Unit = {},
+    ) {
+        autenticar(
+            { requireNotNull(auth).cadastrar(name, address, password, newRole) },
+            {
+                if (it) registrationEmail = ""
+                concluido(it)
+            },
+        )
     }
 
-    fun loginWithGoogle(id: String, name: String, address: String): Boolean {
-        val profile = accounts.google(id)
-        if (profile == null) {
-            pendingGoogle = br.com.vippela.auth.GoogleProfile(id, name, address)
-            return false
-        }
-        pendingGoogle = null
-        startSession(profile.role, address, name, id)
-        return true
+    /** Guarda o idToken e pergunta o tipo de conta; o servidor cria ou reutiliza. */
+    fun loginWithGoogle(idToken: String, name: String, address: String): Boolean {
+        pendingGoogle = br.com.vippela.auth.GoogleProfile(idToken, name, address)
+        return false
     }
 
-    fun completeGoogleRegistration(newRole: Role) {
+    fun completeGoogleRegistration(newRole: Role, concluido: (Boolean) -> Unit = {}) {
         val google = pendingGoogle ?: return
-        accounts.registerGoogle(google.id, google.name, google.email, newRole)
-        loginWithGoogle(google.id, google.name, google.email)
+        autenticar({ requireNotNull(auth).entrarComGoogle(google.id, google.name, newRole) }) {
+            if (it) pendingGoogle = null
+            concluido(it)
+        }
     }
 
     fun cancelGoogleRegistration() {
         pendingGoogle = null
+    }
+
+    /** Confere o token guardado com o servidor ao abrir o app. */
+    fun restaurarSessao() {
+        val gateway = auth ?: return
+        if (!gateway.servidorConfigurado) return
+        authScope.launch {
+            gateway.restaurar()?.let { sessao -> aplicarSessao(sessao) }
+        }
     }
 
     fun logout() {
@@ -425,28 +472,32 @@ class DemoState(private val accounts: LocalAccounts = LocalAccounts()) : ViewMod
         linkBusy = false
         pendingGoogle = null
         role = null
-        googleUid = null
+        usuarioId = null
+        entrouComGoogle = false
+        authError = null
         selectedId = 1
+        sessaoGeracao++
+        auth?.let { gateway -> authScope.launch { gateway.sair() } }
     }
 
-    private fun startSession(
-        newRole: Role,
-        address: String,
-        name: String? = null,
-        externalId: String? = null,
-    ) {
-        googleUid = externalId
-        role = newRole
-        email = address.trim()
+    private fun aplicarSessao(sessao: SessaoLocal) {
+        usuarioId = sessao.id
+        entrouComGoogle = sessao.email.isGoogleLike()
+        role = sessao.tipo
+        email = sessao.email
         selectedId = 1
-        val cleanName = name?.trim()?.takeIf { it.isNotEmpty() } ?: return
-        if (newRole == Role.RESPONSAVEL) {
+        sessaoGeracao++
+        val cleanName = sessao.nome.trim()
+        if (cleanName.isEmpty()) return
+        if (sessao.tipo == Role.RESPONSAVEL) {
             displayName = cleanName
         } else {
             val memberIndex = members.indexOfFirst { it.id == selectedId }
             if (memberIndex >= 0) members[memberIndex] = members[memberIndex].copy(name = cleanName)
         }
     }
+
+    private fun String.isGoogleLike() = contains("@") && endsWith("gmail.com", ignoreCase = true)
 
     fun requestApp(name: String, message: String) {
         if (

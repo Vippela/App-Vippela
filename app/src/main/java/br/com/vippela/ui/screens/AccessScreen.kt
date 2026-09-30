@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 fun AccessScreen(state: DemoState, register: () -> Unit, login: () -> Unit, enter: () -> Unit) {
     val context = LocalContext.current
     val google = remember(context) { GoogleSignIn(context) }
+    val googleAtivo = remember(google) { google.isConfigured() }
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var message by rememberSaveable { mutableStateOf<String?>(null) }
@@ -32,22 +33,25 @@ fun AccessScreen(state: DemoState, register: () -> Unit, login: () -> Unit, ente
             style = MaterialTheme.typography.headlineMedium,
         )
         Spacer(Modifier.height(24.dp))
+        ServerConfiguration(state)
+        Spacer(Modifier.height(16.dp))
         PrimaryButton("Continuar com email", onClick = login)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HorizontalDivider(Modifier.weight(1f))
-            Text("  ou  ", color = Muted)
-            HorizontalDivider(Modifier.weight(1f))
-        }
-        Button(
-            {
-                if (!google.isConfigured())
-                    message =
-                        "O login Google precisa ser ativado pela equipe do aplicativo. Por enquanto, entre com e-mail."
-                else
+        // Google só aparece quando a flag vippela.google está ligada e o
+        // google-services.json existe; sem isso o acesso é só por e-mail.
+        if (googleAtivo) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                HorizontalDivider(Modifier.weight(1f))
+                Text("  ou  ", color = Muted)
+                HorizontalDivider(Modifier.weight(1f))
+            }
+            Button(
+                {
                     scope.launch {
                         busy = true
                         try {
                             val profile = google.signIn()
+                            // O backend recebe o idToken; ele decide se a conta
+                            // é nova (pede o tipo) ou já existente.
                             if (state.loginWithGoogle(profile.id, profile.name, profile.email))
                                 enter()
                             else register()
@@ -65,18 +69,28 @@ fun AccessScreen(state: DemoState, register: () -> Unit, login: () -> Unit, ente
                             busy = false
                         }
                     }
-            },
-            Modifier.fillMaxWidth(),
-            enabled = !busy,
-            shape = RoundedCornerShape(8.dp),
-        ) {
-            Image(
-                androidx.compose.ui.res.painterResource(br.com.vippela.R.drawable.ic_google_logo),
-                null,
-                Modifier.size(20.dp),
+                },
+                Modifier.fillMaxWidth(),
+                enabled = !busy,
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                Image(
+                    androidx.compose.ui.res.painterResource(
+                        br.com.vippela.R.drawable.ic_google_logo
+                    ),
+                    null,
+                    Modifier.size(20.dp),
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(if (busy) "Entrando…" else "Entrar com Google")
+            }
+        } else {
+            Text(
+                "O acesso por Google ainda não está disponível. Use seu e-mail e senha.",
+                Modifier.align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.bodySmall,
+                color = Muted,
             )
-            Spacer(Modifier.width(12.dp))
-            Text(if (busy) "Entrando…" else "Entrar com Google")
         }
         Row(
             Modifier.align(Alignment.CenterHorizontally),

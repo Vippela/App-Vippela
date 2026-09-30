@@ -4,6 +4,10 @@ plugins {
 }
 if (file("google-services.json").exists()) apply(plugin = "com.google.gms.google-services")
 
+// Login Google é opcional: fica desligado por padrão e só aparece com
+// `./gradlew -Pvippela.google=true` (ou definindo a propriedade no gradle.properties).
+val googleAtivo = ((findProperty("vippela.google") as String?) ?: "false").toBoolean()
+
 android {
     namespace = "br.com.vippela"
     compileSdk { version = release(36) { minorApiLevel = 1 } }
@@ -11,8 +15,9 @@ android {
         applicationId = "br.com.vippela"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "0.6.0"
+        buildConfigField("boolean", "VIPPELA_GOOGLE_ATIVO", googleAtivo.toString())
     }
     buildFeatures { compose = true; buildConfig = true }
     testOptions { unitTests.isIncludeAndroidResources = true }

@@ -39,9 +39,10 @@ private fun VippelaContent(state: DemoState) {
         mutableStateOf(br.com.vippela.data.Role.RESPONSAVEL)
     }
     val context = androidx.compose.ui.platform.LocalContext.current
-    LaunchedEffect(state.role, state.email, state.googleUid) {
+    LaunchedEffect(state.role, state.email, state.usuarioId, state.sessaoGeracao) {
         state.attachLinks(br.com.vippela.data.linking.LinkStore(context))
     }
+    LaunchedEffect(Unit) { state.restaurarSessao() }
     val scope = rememberCoroutineScope()
     val nav = rememberNavController()
     val entry by nav.currentBackStackEntryAsState()
@@ -66,6 +67,7 @@ private fun VippelaContent(state: DemoState) {
     LaunchedEffect(route, state.role) {
         if (route !in authRoutes && state.role == null)
             nav.navigate("login") { popUpTo(nav.graph.id) { inclusive = true } }
+        else if (route in authRoutes && state.role != null && route != "recover") enter()
         else if (route in parentRoutes && !state.isParent)
             nav.navigate("home") { popUpTo("home") { inclusive = true } }
     }
@@ -206,8 +208,9 @@ private fun VippelaContent(state: DemoState) {
                         composable("register-choice") {
                             RegistrationChoiceScreen {
                                 if (state.pendingGoogle != null) {
-                                    state.completeGoogleRegistration(it)
-                                    enter()
+                                    state.completeGoogleRegistration(it) { ok ->
+                                        if (ok) enter() else go("login")
+                                    }
                                 } else {
                                     registrationRole = it
                                     go("register")

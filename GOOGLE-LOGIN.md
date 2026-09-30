@@ -1,6 +1,8 @@
 # Ativar o login Google
 
-O aplicativo usa Credential Manager e Firebase Authentication. O token Google é validado pelo Firebase antes da abertura da sessão. Não há Firestore, Realtime Database nem sincronização dos dados da família.
+O recurso fica **desligado por padrão** e o aplicativo funciona só com e-mail e senha enquanto isso. Para ligar: defina `vippela.google=true` (propriedade do Gradle ou `gradle.properties`), coloque o `google-services.json` e compile com `./gradlew -Pvippela.google=true assembleDebug`. No servidor, aponte `VIPPELA_GOOGLE_CREDENTIALS` para o JSON de service account; sem esse valor, `POST /auth/google` responde 503.
+
+O aplicativo usa Credential Manager e Firebase Authentication. O token Google é validado pelo Firebase antes da abertura da sessão e, depois, pelo backend. Não há Firestore, Realtime Database nem sincronização dos dados da família.
 
 ## Configuração
 
@@ -31,10 +33,13 @@ Outro computador ou uma assinatura de publicação terá certificados diferentes
 
 ## Comportamento atual
 
-Sem configuração, o botão explica que o Google ainda não está ativo e mantém a tela de acesso. Ele não simula um login bem-sucedido. Com configuração, o UID autenticado consulta o perfil salvo no aparelho. Se ainda não existir, a escolha de perfil aparece no cadastro e é salva para os próximos acessos; as permissões e os vínculos continuam demonstrativos. O servidor de uma versão futura deverá controlar os papéis e os vínculos, sem confiar nessa escolha local.
+Sem configuração do Firebase, o botão explica que o Google ainda não está ativo e mantém a tela de acesso. Ele não simula um login bem-sucedido.
 
-A troca de e-mail e telefone nas configurações altera apenas a apresentação em memória, sem chamar `updateEmail` ou modificar o usuário Firebase. Ao sair, o app encerra a sessão Firebase e limpa o estado do Credential Manager.
+Com configuração, o app envia o idToken do Firebase para POST /auth/google do backend, que valida a assinatura e devolve a sessão do servidor. O aplicativo não confia no uid do Google para nada além de mostrar quem entrou. Quando a conta ainda não existe no servidor, o app pergunta o tipo (Responsável ou Familiar) e conclui o cadastro; quando já existe, o tipo anterior é mantido.
+
+Se o e-mail da conta Google já estiver cadastrado com senha, o servidor recusa com 409 e o app orienta entrar com a senha; não há vínculo automático entre os dois métodos.
+
+Ao sair, o app chama POST /auth/logout para revogar a sessão no servidor, encerra a sessão do Firebase e limpa o estado do Credential Manager.
 
 O login real ainda precisa ser testado após a configuração do projeto.
-
 Referências: [Firebase — autenticação Google no Android](https://firebase.google.com/docs/auth/android/google-signin) e [Android — Credential Manager](https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation).

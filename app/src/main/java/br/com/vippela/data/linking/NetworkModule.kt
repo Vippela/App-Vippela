@@ -1,6 +1,7 @@
 package br.com.vippela.data.linking
 
 import br.com.vippela.BuildConfig
+import br.com.vippela.data.auth.AuthApi
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
@@ -19,16 +20,36 @@ object NetworkModule {
 
     fun api(url: String): DeviceLinkApi {
         require(validUrl(url)) { "Configure o endereço do servidor de vínculo." }
+        return retrofit(url, null).create(DeviceLinkApi::class.java)
+    }
+
+    /**
+     * Mesma instalação, outro recurso: cadastro e login. O interceptor
+     * anexa o token de sessão em toda chamada, como o backend espera.
+     */
+    fun auth(url: String, token: () -> String?): AuthApi {
+        require(validUrl(url)) { "Configure o endereço do servidor." }
+        return retrofit(url, token).create(AuthApi::class.java)
+    }
+
+    private fun retrofit(url: String, token: (() -> String?)?): Retrofit {
+        val client =
+            OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .callTimeout(15, TimeUnit.SECONDS)
+        if (token != null) {
+            client.addInterceptor { chain ->
+                val atual = token()
+                val requisicao =
+                    if (atual.isNullOrBlank()) chain.request()
+                    else chain.request().newBuilder().header("Authorization", "Bearer $atual").build()
+                chain.proceed(requisicao)
+            }
+        }
         return Retrofit.Builder()
             .baseUrl(url.trimEnd('/') + "/")
-            .client(
-                OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .callTimeout(15, TimeUnit.SECONDS)
-                    .build()
-            )
+            .client(client.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(DeviceLinkApi::class.java)
     }
 }

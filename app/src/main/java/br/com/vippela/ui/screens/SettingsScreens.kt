@@ -239,10 +239,8 @@ fun InfoScreen(route: String, state: DemoState) {
                     Text(state.contactEmail)
                     if (state.phone.isNotBlank()) Text(state.phone)
                     Text("Perfil: ${if(state.isParent) "Responsável" else "Familiar"}")
-                    Text(
-                        "Conta de demonstração. A autenticação real será implementada na integração com o backend.",
-                        color = Muted,
-                    )
+                    if (state.entrouComGoogle) Text("Entrada pela conta Google", color = Muted)
+                    ServerConfiguration(state)
                 }
             "contact" -> ContactEditor(state)
             "theme" ->
@@ -262,9 +260,9 @@ fun InfoScreen(route: String, state: DemoState) {
                 Panel {
                     Icon(Icons.Outlined.CreditCard, null, tint = Orange)
                     Heading("Seu plano familiar")
-                    Text("Demonstração", style = MaterialTheme.typography.headlineMedium)
+                    Text("Plano da família", style = MaterialTheme.typography.headlineMedium)
                     Text("Explore o acompanhamento familiar, as trilhas e os relatórios.")
-                    Text("Não há assinatura ou cobrança nesta versão.", color = Muted)
+                    Text("A assinatura é combinada com quem administra a sua família.", color = Muted)
                 }
         }
     }

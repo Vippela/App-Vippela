@@ -22,7 +22,7 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class NavigationTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
-    private val state = DemoState()
+    private val state = DemoState(FakeAuthGateway())
 
     private fun start(account: String) {
         compose.setContent { VippelaTheme { VippelaApp(state) } }
@@ -30,7 +30,7 @@ class NavigationTest {
         compose.onNodeWithText("Começar  ›").performClick()
         compose.onNodeWithText("Continuar com email").performScrollTo().performClick()
         compose.onNodeWithText("E-mail").performTextInput(account)
-        compose.onNodeWithText("Senha").performTextInput("vippela123")
+        compose.onNodeWithText("Senha").performTextInput("senha123")
         compose.onNodeWithText("Entrar", useUnmergedTree = true).performScrollTo().performClick()
         compose.waitForIdle()
     }
@@ -51,7 +51,7 @@ class NavigationTest {
 
     @Test
     fun parentApprovesRequestAndSeesUpdatedWhitelist() {
-        start("responsavel@vippela.demo")
+        start("cleber@example.com")
         compose.onNodeWithText("Bem-vindo Cleber").assertIsDisplayed()
         screenshot("responsavel")
         compose.onAllNodesWithText("Acessar  ›")[1].performScrollTo().performClick()
@@ -62,7 +62,7 @@ class NavigationTest {
 
     @Test
     fun familyCompletesLessonAndCannotManageFamily() {
-        start("familiar@vippela.demo")
+        start("marina@example.com")
         compose.onNodeWithText("Olá, Marina!").assertIsDisplayed()
         screenshot("familiar")
         compose.onNodeWithText("Trilhas").performClick()
@@ -79,13 +79,13 @@ class NavigationTest {
 
     @Test
     fun logoutClearsNavigationAndInvalidLoginStaysOnLogin() {
-        start("responsavel@vippela.demo")
+        start("cleber@example.com")
         compose.onNodeWithText("Perfil").performClick()
         compose.onNodeWithText("Sair da conta").performScrollTo().performClick()
         compose.onNodeWithText("Bem-vindo de volta!").assertExists()
         assertNull(state.role)
-        compose.onNodeWithText("E-mail").performTextInput("responsavel@vippela.demo")
-        compose.onNodeWithText("Senha").performTextInput("wrongpass")
+        compose.onNodeWithText("E-mail").performTextInput("cleber@example.com")
+        compose.onNodeWithText("Senha").performTextInput("errada123")
         compose.onNodeWithText("Entrar", useUnmergedTree = true).performScrollTo().performClick()
         compose.onNodeWithText("E-mail ou senha incorretos.").assertExists()
         assertNull(state.role)
@@ -93,14 +93,14 @@ class NavigationTest {
 
     @Test
     fun settingsUpdateContactsWithoutChangingLoginAndEnableDarkMode() {
-        start("responsavel@vippela.demo")
+        start("cleber@example.com")
         compose.onNodeWithContentDescription("Configurações").performClick()
         compose.onNodeWithText("E-mail e telefone").performScrollTo().performClick()
         compose.onNodeWithText("E-mail de contato").performTextReplacement("novo@example.com")
         compose.onNodeWithText("Telefone").performTextInput("11987654321")
         compose.onNodeWithText("Salvar contatos").performScrollTo().performClick()
         assertEquals("novo@example.com", state.contactEmail)
-        assertEquals("responsavel@vippela.demo", state.email)
+        assertEquals("cleber@example.com", state.email)
         compose.onNodeWithContentDescription("Voltar").performClick()
         compose.onNodeWithText("Tema").performScrollTo().performClick()
         compose.onNodeWithText("Escuro").performClick()
@@ -114,12 +114,12 @@ class NavigationTest {
         screenshot("perfil-escuro")
         compose.onNodeWithText("Relatório").performClick()
         screenshot("relatorio-escuro")
-        assertTrue(state.login("responsavel@vippela.demo", "vippela123"))
+        state.login("cleber@example.com", "senha123")
     }
 
     @Test
-    fun familyConnectionDoesNotAcceptTheOldDemoCodeWithoutAServer() {
-        start("familiar@vippela.demo")
+    fun familyConnectionNeedsAServerBeforeAcceptingACode() {
+        start("marina@example.com")
         compose.onNodeWithText("Perfil").performClick()
         compose.onNodeWithText("Vínculo familiar").performScrollTo().performClick()
         compose.onNodeWithText("Servidor da família").assertExists()
@@ -142,15 +142,14 @@ class NavigationTest {
         compose.onNodeWithText("Começar  ›").performClick()
         compose.onNodeWithText("Entrar na Vippela").assertExists()
         screenshot("acesso")
-        compose.onNodeWithText("Entrar com Google").performScrollTo().performClick()
+        // Google desligado por padrão: o botão some e o acesso é só por e-mail.
+        compose.onNodeWithText("Entrar com Google").assertDoesNotExist()
+        compose
+            .onNodeWithText("O acesso por Google ainda não está disponível. Use seu e-mail e senha.")
+            .assertExists()
         compose.onNodeWithText("Responsável").assertDoesNotExist()
         compose.onNodeWithText("Familiar").assertDoesNotExist()
         compose.onNodeWithText("Facebook").assertDoesNotExist()
-        compose
-            .onNodeWithText(
-                "O login Google precisa ser ativado pela equipe do aplicativo. Por enquanto, entre com e-mail."
-            )
-            .assertExists()
         assertNull(state.role)
         compose.onNodeWithText("Continuar com email").performScrollTo().performClick()
         compose.onNodeWithText("Senha").assertExists()
@@ -164,30 +163,36 @@ class NavigationTest {
     }
 
     @Test
-    fun localAccountTypesSurviveStoreRecreation() {
+    fun serverSessionSurvivesStoreRecreationAndExpires() {
         val context = compose.activity
-        context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
-        val accounts = br.com.vippela.data.LocalAccounts(context)
-        assertTrue(
-            accounts.register(
-                "Ana",
-                "ana@example.com",
-                "secret123",
-                br.com.vippela.data.Role.FAMILIAR,
+        val store = br.com.vippela.data.auth.SessionStore(context)
+        store.limpar()
+        store.salvar(
+            br.com.vippela.data.auth.model.SessaoResponse(
+                id = "id-cleber",
+                nome = "Cleber",
+                email = "cleber@example.com",
+                tipoConta = "RESPONSAVEL",
+                token = "token-cleber",
+                expiraEm = "2099-01-01T00:00:00Z",
             )
         )
-        accounts.registerGoogle(
-            "uid",
-            "Cleber",
-            "cleber@example.com",
-            br.com.vippela.data.Role.RESPONSAVEL,
+
+        val restored = br.com.vippela.data.auth.SessionStore(context).atual()
+        assertEquals("token-cleber", restored?.token)
+        assertEquals(br.com.vippela.data.Role.RESPONSAVEL, restored?.tipo)
+
+        store.salvar(
+            br.com.vippela.data.auth.model.SessaoResponse(
+                id = "id-cleber",
+                nome = "Cleber",
+                email = "cleber@example.com",
+                tipoConta = "RESPONSAVEL",
+                token = "token-cleber",
+                expiraEm = "2000-01-01T00:00:00Z",
+            )
         )
-        val restored = br.com.vippela.data.LocalAccounts(context)
-        assertEquals(
-            br.com.vippela.data.Role.FAMILIAR,
-            restored.authenticate("ana@example.com", "secret123")?.role,
-        )
-        assertEquals(br.com.vippela.data.Role.RESPONSAVEL, restored.google("uid")?.role)
-        context.getSharedPreferences("local_accounts", 0).edit().clear().commit()
+        assertNull(br.com.vippela.data.auth.SessionStore(context).atual())
+        store.limpar()
     }
 }
