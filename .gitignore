@@ -5,3 +5,12 @@
 local.properties
 *.iml
 google-services.json
+
+# Credenciais locais
+.env
+.env.*
+!.env.example
+*firebase-adminsdk*.json
+service-account*.json
+firebase-admin*.json
+google-services*.json

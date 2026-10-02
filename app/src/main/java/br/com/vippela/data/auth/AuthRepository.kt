@@ -68,7 +68,9 @@ class AuthRepository(
         val token = sessoes.token()
         sessoes.limpar()
         if (token == null) return
-        runCatching { withContext(Dispatchers.IO) { api().sair() } }
+        runCatching {
+            withContext(Dispatchers.IO) { NetworkModule.auth(servidor().trim()) { token }.sair() }
+        }
     }
 
     private fun gravar(resposta: SessaoResponse): SessaoLocal =
