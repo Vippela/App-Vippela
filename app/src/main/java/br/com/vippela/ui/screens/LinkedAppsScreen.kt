@@ -59,7 +59,7 @@ fun LinkedAppsScreen(state: DemoState, go: (String) -> Unit) {
                     }
                 )
             }
-            if (!state.isParent) ProtectionSetup()
+            if (!state.isParent) { ProtectionSetup(); UsagePermissionCard() }
             OutlinedTextField(
                 query,
                 { query = it },
@@ -77,7 +77,7 @@ fun LinkedAppsScreen(state: DemoState, go: (String) -> Unit) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        AppSymbol(app.label)
+                        LinkedAppIcon(app.label, link.report?.icons?.get(app.packageName))
                         Column(Modifier.weight(1f)) {
                             Text(app.label)
                             Text(

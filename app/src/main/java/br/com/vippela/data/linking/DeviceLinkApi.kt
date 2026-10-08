@@ -4,6 +4,13 @@ import br.com.vippela.data.linking.model.*
 import retrofit2.http.*
 
 interface DeviceLinkApi {
+    @GET("links/{id}/report")
+    suspend fun report(@Path("id") id: String, @Header("X-Owner-Key") key: String): UsageReport
+
+    @PUT("links/{id}/report")
+    suspend fun uploadReport(@Path("id") id: String, @Header("X-Device-Key") key: String,
+        @Body report: UsageReport): UsageReport
+
     @POST("links/generate")
     suspend fun generateLink(
         @Header("X-Owner-Key") key: String,

@@ -58,18 +58,26 @@ class LinkStore(context: Context) {
     val activeScope
         get() = prefs.getString("active", null)
 
-    fun cached(scope: String): DeviceLinkResponse? =
-        runCatching {
-                gson.fromJson(prefs.getString("$scope.link", null), DeviceLinkResponse::class.java)
-            }
-            .getOrNull()
+    private var lastPolicyJson: String? = null
+    private var lastPolicy: DeviceLinkResponse? = null
+
+    fun cached(scope: String): DeviceLinkResponse? = synchronized(lock) {
+        val json = prefs.getString("$scope.link", null)
+        if (json != lastPolicyJson) {
+            lastPolicy = runCatching { gson.fromJson(json, DeviceLinkResponse::class.java) }.getOrNull()
+            lastPolicyJson = json
+        }
+        lastPolicy
+    }
 
     fun save(scope: String, link: DeviceLinkResponse) =
         synchronized(lock) {
             val previous = cached(scope)
             if (previous == null || previous.id != link.id || previous.revision <= link.revision) {
                 val oldValue = prefs.getString("$scope.link", null)
-                if (!prefs.edit().putString("$scope.link", gson.toJson(link)).commit()) {
+                if (!prefs.edit().putString("$scope.link", gson.toJson(
+                    if ((previous?.report?.collectedAt ?: 0) > (link.report?.collectedAt ?: 0)) link.copy(report = previous?.report) else link
+                )).commit()) {
                     prefs.edit().putString("$scope.link", oldValue).apply()
                     error("Não foi possível salvar as regras neste aparelho")
                 }

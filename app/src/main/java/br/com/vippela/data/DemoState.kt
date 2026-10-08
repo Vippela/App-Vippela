@@ -282,6 +282,7 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
+                        if (!parent) childLink = store.cached(scope) ?: childLink
                         linkError = remoteMessage(e)
                     }
                     delay(5000)

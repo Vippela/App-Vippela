@@ -72,7 +72,7 @@ O login Google exige o arquivo de configuração do projeto do usuário e um tes
 - data/linking: pareamento e regras por conta
 - auth: autenticação Google (Credential Manager + Firebase)
 
-Não há monitoramento real de aplicativos, restrições do dispositivo, banco de dados ou notificações do Android nesta etapa.
+O protótipo inicial era apenas visual; as versões 0.5.0–0.7.0 adicionam vínculo, autenticação, bloqueio e estatísticas reais conforme descrito neste documento.
 
 ## Revisão do acesso
 
@@ -81,10 +81,22 @@ Não há monitoramento real de aplicativos, restrições do dispositivo, banco d
 - Opção Facebook removida; nenhuma dependência foi adicionada.
 - `ic_google_logo.xml`: vetor em quatro cores, sem fundo, correspondente à versão clássica enviada. A imagem anexada tinha quadriculado opaco incorporado e não foi usada no botão.
 
-O cadastro por e-mail continua sendo uma simulação local, sem conta de servidor. A associação local de perfil não é autorização de backend e não sincroniza entre dispositivos. O login Google continua exigindo a configuração descrita em GOOGLE-LOGIN.md.
+O cadastro por e-mail utiliza o backend desde a versão 0.6.0. O vínculo ainda utiliza chaves próprias, separadas da sessão de login. O login Google exige a configuração descrita em GOOGLE-LOGIN.md.
 
 ## Animações — 0.4.0
 
 A abelha repete o percurso de cada etapa e permanece dentro da tela. O onboarding usa AnimatedContent com fade e slide; avanço e volta usam sentidos opostos. Os destinos do Navigation Compose usam transições de 320 ms.
 
 Os testes de movimento controlam o relógio para comparar quadros da abelha e verificar posições intermediárias das páginas, inclusive ao voltar.
+
+## Bloqueio e estatísticas — 0.7.0
+
+O serviço de acessibilidade mostra a tela amarela de bloqueio com animação de subida. O botão Fechar app retorna à tela inicial; a tela também sai ao desativar o serviço ou apagar a tela. Não requer permissão de sobreposição de outros apps: usa a janela do próprio serviço de acessibilidade.
+
+Atualize também o backend. A tela Aplicativos recebe ícones PNG pequenos do aparelho vinculado. No familiar, permita o acesso às estatísticas em Aplicativos ou Relatórios. Apenas após esse consentimento a coleta registra a duração de uso dos apps monitorados. Não lê conteúdo de telas. O total exclui apps essenciais, pode ter lacunas quando o serviço não está executando e não deve ser confundido com o total do Bem-estar Digital do Android.
+
+Relatórios mostram hoje, últimos 7 dias e últimos 30 dias, com origem e horário de atualização. Os dados ficam em histórico local separado por conta/servidor e são enviados pelo vínculo a cada minuto; no responsável pode levar até dois minutos para refletir. Sem permissão ou sincronização, a interface informa a ausência de dados. A revogação da permissão limpa o histórico local na próxima coleta e o relatório remoto na próxima sincronização bem-sucedida. Ícones continuam disponíveis. Percentuais de segurança e redução fictícios foram retirados desses relatórios. Trilhas, objetivos e alertas educativos ainda têm conteúdos demonstrativos.
+
+## Correção dos relatórios — 0.7.1
+
+Acessibilidade e Acesso ao uso são permissões diferentes. A tela agora consulta a permissão local do familiar; mensagens do relatório remoto indicam quando representam a última sincronização. Ao conceder ou revogar Acesso ao uso, a próxima sincronização envia o novo estado sem esperar o intervalo de um minuto. O relatório local é salvo antes do envio; falta de conexão ou backend desatualizado aparece como erro de sincronização, sem descartar os dados do familiar.

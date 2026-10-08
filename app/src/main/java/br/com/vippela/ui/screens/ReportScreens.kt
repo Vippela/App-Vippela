@@ -19,116 +19,87 @@ import br.com.vippela.ui.theme.*
 @Composable
 fun ReportsScreen(state: DemoState, go: (String) -> Unit) {
     var period by rememberSaveable { mutableIntStateOf(0) }
-    val values =
-        when (period) {
-            0 -> {
-                val parts = listOf(15, 20, 20, 5, 10, 20).map { state.selected.minutes * it / 100 }
-                parts + (state.selected.minutes - parts.sum())
-            }
-            1 -> listOf(120, 180, 156, 20, 112, 180, state.selected.minutes)
-            else -> listOf(710, 590, 630, 520)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var localPermission by remember { mutableStateOf(br.com.vippela.data.usage.UsageCollector.permitted(context)) }
+    LaunchedEffect(state.isParent) {
+        if (!state.isParent) while (true) {
+            localPermission = br.com.vippela.data.usage.UsageCollector.permitted(context)
+            kotlinx.coroutines.delay(1000)
         }
-    val labels =
-        when (period) {
-            0 -> listOf("6h", "9h", "12h", "15h", "18h", "21h", "24h")
-            1 -> listOf("seg", "ter", "qua", "qui", "sex", "sáb", "dom")
-            else -> listOf("S1", "S2", "S3", "S4")
-        }
+    }
+    val link = state.currentLink
+    val report = link?.report
+    val zone = runCatching { java.time.ZoneId.of(report?.zone ?: "UTC") }.getOrDefault(java.time.ZoneId.of("UTC"))
+    val today = java.time.LocalDate.now(zone)
+    val start = today.minusDays(if (period == 0) 0 else if (period == 1) 6 else 29)
+    val buckets = report?.buckets.orEmpty().filterKeys { it.substringBefore('|') >= start.toString() && it.substringBefore('|') <= today.toString() }
+    val totals = LongArray(if (period == 0) 6 else if (period == 1) 7 else 6)
+    buckets.forEach { (key, value) ->
+        val parts = key.split('|')
+        val date = runCatching { java.time.LocalDate.parse(parts[0]) }.getOrNull()
+        val hour = parts.getOrNull(1)?.toIntOrNull()
+        val index = if (period == 0) (hour ?: -4) / 4 else date?.let { java.time.temporal.ChronoUnit.DAYS.between(start, it).toInt() / if (period == 1) 1 else 5 } ?: -1
+        if (index in totals.indices) totals[index] += value
+    }
+    fun time(ms: Long) = if (ms in 1..59999) "< 1 min" else duration((ms / 60000).toInt())
     Page {
-        Text(state.selected.name, style = MaterialTheme.typography.bodyMedium, color = Muted)
-        Tabs(listOf("Dia", "Semana", "Mês"), period) { period = it }
-        Panel {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("◷ Tempo de tela", style = MaterialTheme.typography.bodyMedium)
-                Text(duration(values.sum()), style = MaterialTheme.typography.bodyMedium)
-            }
-            Row(
-                Modifier.fillMaxWidth().height(130.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                values.forEachIndexed { i, value ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Box(
-                            Modifier.width(20.dp)
-                                .height((value.toFloat() / values.max().coerceAtLeast(1) * 90).dp)
-                                .background(
-                                    if (i % 2 == 0) Muted else MaterialTheme.colorScheme.primary,
-                                    RoundedCornerShape(5.dp),
-                                )
-                                .semantics {
-                                    contentDescription = "${labels[i]}: ${duration(value)}"
-                                }
-                        )
-                        Text(labels[i], style = MaterialTheme.typography.bodySmall)
+        Text(link?.memberName ?: if (state.isParent) state.selected.name else "Seu uso", style = MaterialTheme.typography.titleMedium)
+        if (!state.isParent) UsagePermissionCard()
+        link?.reportError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        if (link == null) {
+            Text("Vincule o aparelho do familiar para consultar estatísticas reais.")
+            PrimaryButton("Vínculo familiar") { go("pair") }
+        } else if (!state.isParent && !localPermission) {
+            Text("Permita o acesso ao uso neste aparelho. A acessibilidade para bloquear apps é uma permissão separada.")
+        } else if (report == null || report.collectedAt == 0L) {
+            Text("Aguardando o primeiro relatório do familiar. Atualize também o backend e abra a Vippela no aparelho vinculado.")
+        } else if (!report.permission) {
+            Text(if (!state.isParent && localPermission) "Permissão ativada. Preparando as estatísticas deste aparelho…"
+                else "No último relatório, o acesso ao uso estava desativado no familiar. Se já foi ativado, aguarde a sincronização e confira a conexão dos aparelhos.")
+        } else {
+            Tabs(listOf("Dia", "7 dias", "30 dias"), period) { period = it }
+            Panel {
+                Text("Uso dos aplicativos monitorados", style = MaterialTheme.typography.titleMedium)
+                Text(time(totals.sum()), style = MaterialTheme.typography.headlineMedium)
+                Row(Modifier.fillMaxWidth().height(145.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
+                    totals.forEachIndexed { index, value ->
+                        val label = if (period == 0) "${index * 4}h" else start.plusDays((index * if (period == 1) 1 else 5).toLong()).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"))
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(Modifier.width(18.dp).height((value.toFloat() / (totals.maxOrNull() ?: 1).coerceAtLeast(1) * 100).dp).background(Violet, RoundedCornerShape(5.dp)).semantics { contentDescription = "$label: ${time(value)}" })
+                            Text(label, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                 }
+                if (totals.sum() == 0L) Text("Ainda não há uso registrado neste período.")
+                Text("Histórico desde " + java.time.Instant.ofEpochMilli(report.since).atZone(zone).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm")), style = MaterialTheme.typography.bodySmall)
+                Text("Atualizado em " + java.time.Instant.ofEpochMilli(report.collectedAt).atZone(zone).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm")) + " • " + report.zone, style = MaterialTheme.typography.bodySmall)
+                Text("Dias sem coleta não representam necessariamente ausência de uso. Apps essenciais não entram no total.", style = MaterialTheme.typography.bodySmall)
             }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            val allowed = state.apps.getValue(state.selectedId).count { it.allowed }
-            listOf(
-                    Triple("Tempo", .74f, Violet),
-                    Triple("Apps", allowed / 4f, Orange),
-                    Triple("Seguro", .9f, Color(0xFFE7B800)),
-                )
-                .forEach { (label, value, color) ->
+            val allowed = link.apps.count { it.packageName !in link.blockedPackages }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                listOf(Triple("Permitidos", allowed, Violet), Triple("Bloqueados", link.apps.size - allowed, Orange)).forEach { (label, count, color) ->
                     Panel(Modifier.weight(1f)) {
                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Ring(value, "", color, 56.dp)
+                            Ring(if (link.apps.isEmpty()) 0f else count.toFloat() / link.apps.size, "", color, 64.dp)
                         }
-                        Text(
-                            label,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                        )
+                        Text("$count $label", style = MaterialTheme.typography.bodySmall, modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
-        }
-        Heading("Monitoramento de atividades")
-        Panel {
-            MenuRow(
-                "Aplicativos mais usados",
-                "YouTube, Instagram, TikTok",
-                Icons.Outlined.PhoneAndroid,
-            ) {
-                go("apps")
             }
-            HorizontalDivider()
-            MenuRow(
-                "${if(state.isParent) "Bloqueio" else "Liberação"} de aplicativos",
-                "Veja os combinados da família",
-                Icons.Outlined.Lock,
-            ) {
-                go(if (state.isParent) "requests" else "release")
-            }
-            HorizontalDivider()
-            MenuRow(
-                "Conteúdo acessado",
-                "Orientações e alertas educativos",
-                Icons.Outlined.Language,
-            ) {
-                go("alerts")
+            Heading("Aplicativos mais usados")
+            val byApp = buckets.entries.groupBy { it.key.substringAfterLast('|') }.mapValues { (_, values) -> values.sumOf { it.value } }
+            byApp.entries.sortedByDescending { it.value }.take(10).forEach { (pkg, millis) ->
+                val label = link.apps.firstOrNull { it.packageName == pkg }?.label ?: pkg
+                Panel {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        LinkedAppIcon(label, report.icons[pkg])
+                        Text(label, Modifier.weight(1f))
+                        Text(time(millis))
+                    }
+                }
             }
         }
-        if (period > 0)
-            Panel {
-                Text(
-                    "Resumo ${if(period==1) "semanal" else "mensal"}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text(
-                    "O tempo de tela diminuiu em relação ao período anterior. Continue reservando momentos para atividades fora da tela."
-                )
-                Text(
-                    "Dados ilustrativos da demonstração.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Muted,
-                )
-            }
+        if (link != null) SecondaryButton("Gerenciar aplicativos") { go("apps") }
     }
 }
 

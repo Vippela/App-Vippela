@@ -2,7 +2,10 @@ package br.com.vippela.blocking
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
-import android.widget.Toast
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import br.com.vippela.data.linking.DeviceLinkRepository
 import br.com.vippela.data.linking.LinkStore
 import kotlinx.coroutines.*
@@ -21,6 +24,15 @@ class AppBlockService : AccessibilityService() {
     private var eligible = emptySet<String>()
     private var eligibilityTime = -60_000L
     private var syncJob: Job? = null
+    private lateinit var overlay: BlockedAppOverlay
+    private val screenOff = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) { if (::overlay.isInitialized) overlay.dismiss() }
+    }
+    override fun onCreate() {
+        super.onCreate()
+        overlay = BlockedAppOverlay(this) { performGlobalAction(GLOBAL_ACTION_HOME) }
+        registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF))
+    }
 
     override fun onServiceConnected() {
         store = LinkStore(this)
@@ -30,6 +42,8 @@ class AppBlockService : AccessibilityService() {
             scope.launch {
                 while (isActive) {
                     val account = store.activeScope
+                    val visible = overlay.packageName
+                    if (visible != null && (account == null || visible !in (store.cached(account)?.blockedPackages ?: emptySet()))) overlay.dismiss()
                     if (account != null && store.configured) {
                         try {
                             DeviceLinkRepository(store, account).sync()
@@ -70,20 +84,17 @@ class AppBlockService : AccessibilityService() {
         if (now - lastBlock < 800) return
         if (performGlobalAction(GLOBAL_ACTION_HOME)) {
             lastBlock = now
-            Toast.makeText(
-                    this,
-                    "Aplicativo bloqueado pelo responsável. Converse com sua família para liberar.",
-                    Toast.LENGTH_LONG,
-                )
-                .show()
+            overlay.show(packageName!!)
         }
     }
 
-    override fun onInterrupt() = Unit
+    override fun onInterrupt() { if (::overlay.isInitialized) overlay.dismiss() }
 
     override fun onDestroy() {
         connected = false
         scope.cancel()
+        overlay.dismiss()
+        unregisterReceiver(screenOff)
         super.onDestroy()
     }
 }

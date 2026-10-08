@@ -124,7 +124,7 @@ private fun ParentHome(state: DemoState, go: (String) -> Unit) {
                 }
             }
         }
-        Text("Alertas do período", style = MaterialTheme.typography.titleMedium, color = Muted)
+        Text("Exemplos de alertas educativos", style = MaterialTheme.typography.titleMedium, color = Muted)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf("Baixo" to "12", "Atenção" to "4", "Alto" to "1").forEach { (risk, count) ->
                 Surface(
@@ -176,49 +176,24 @@ private fun FamilyHome(state: DemoState, go: (String) -> Unit) {
                 Text("Vamos cuidar do seu tempo?", color = Muted)
             }
         }
-        Panel {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("Seu tempo hoje")
-                    Text(
-                        duration(state.selected.minutes),
-                        style = MaterialTheme.typography.headlineMedium,
-                    )
-                    Text(
-                        "de ${duration(state.limits.getValue(state.selectedId))} combinados",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Ring(
-                    (state.selected.minutes.toFloat() / state.limits.getValue(state.selectedId))
-                        .coerceAtMost(1f),
-                    "do limite",
-                )
-            }
-            Progress(state.selected.minutes.toFloat() / state.limits.getValue(state.selectedId))
-            Text(
-                "Uma pausa faz bem. Que tal uma atividade fora da tela?",
-                color = Muted,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        TodayUsage(state)
         Heading("Aplicativos mais usados")
         Panel {
-            state.apps.getValue(state.selectedId).take(3).forEach { app ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    AppSymbol(app.name)
-                    Text(app.name, Modifier.weight(1f))
-                    Text(duration(app.minutes), style = MaterialTheme.typography.bodySmall)
+            val report = state.currentLink?.report
+            val zone = runCatching { java.time.ZoneId.of(report?.zone ?: "UTC") }.getOrDefault(java.time.ZoneId.of("UTC"))
+            val today = java.time.LocalDate.now(zone).toString()
+            val top = report?.buckets.orEmpty().filterKeys { it.substringBefore('|') == today }.entries
+                .groupBy { it.key.substringAfterLast('|') }.mapValues { (_, values) -> values.sumOf { it.value } }.entries.sortedByDescending { it.value }.take(3)
+            if (top.isEmpty()) Text("Aguardando estatísticas de uso do aparelho.")
+            top.forEach { (pkg, millis) ->
+                val label = state.currentLink?.apps?.firstOrNull { it.packageName == pkg }?.label ?: pkg
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    LinkedAppIcon(label, report?.icons?.get(pkg))
+                    Text(label, Modifier.weight(1f))
+                    Text(if (millis < 60000) "< 1 min" else duration((millis / 60000).toInt()), style = MaterialTheme.typography.bodySmall)
                 }
             }
-            TextButton({ go("apps") }) { Text("Ver todos os aplicativos →") }
+            TextButton({ go("reports") }) { Text("Ver estatísticas →") }
         }
         Heading("Seu aprendizado")
         Panel {
@@ -286,15 +261,7 @@ fun MemberScreen(state: DemoState, go: (String) -> Unit) {
             )
         }
         Heading("Hoje")
-        Panel {
-            Text("Tempo de tela")
-            Text(duration(state.selected.minutes), style = MaterialTheme.typography.headlineLarge)
-            Text(
-                "de ${duration(state.limits.getValue(state.selectedId))} permitidos",
-                color = Muted,
-            )
-            Progress(state.selected.minutes.toFloat() / state.limits.getValue(state.selectedId))
-        }
+        TodayUsage(state)
         GoalCards(state)
         if (state.isParent) {
             PrimaryButton("Ajustar limite diário") { go("limits") }
@@ -327,7 +294,7 @@ fun GoalCards(state: DemoState) {
                         style = MaterialTheme.typography.bodySmall,
                         color = Muted,
                     )
-                    Progress(if (index == 1) .89f else .5f, if (index == 1) Violet else Orange)
+                    Text("Acompanhamento deste objetivo ainda não disponível.", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -335,39 +302,20 @@ fun GoalCards(state: DemoState) {
 }
 
 @Composable
-fun PerformanceScreen(state: DemoState, go: (String) -> Unit) {
-    Page {
-        Panel {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(18.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Ring(.7f, "de redução")
-                Column {
-                    Text("Seu progresso", style = MaterialTheme.typography.titleMedium)
-                    Text("Você está quase lá", style = MaterialTheme.typography.bodySmall)
-                    TextButton({ go("reports") }) { Text("Mais detalhes") }
-                }
-            }
+fun PerformanceScreen(state: DemoState, go: (String) -> Unit) = ReportsScreen(state, go)
+
+@Composable
+private fun TodayUsage(state: DemoState) {
+    val report = state.currentLink?.report
+    Panel {
+        Text("Uso dos aplicativos hoje")
+        if (report == null || !report.permission) Text("Aguardando permissão e estatísticas do familiar.")
+        else {
+            val zone = runCatching { java.time.ZoneId.of(report.zone) }.getOrDefault(java.time.ZoneId.of("UTC"))
+            val today = java.time.LocalDate.now(zone).toString()
+            val millis = report.buckets.filterKeys { it.substringBefore('|') == today }.values.sum()
+            Text(if (millis in 1..59999) "< 1 min" else duration((millis / 60000).toInt()), style = MaterialTheme.typography.headlineLarge)
+            Text("Dados registrados pelo aparelho. Veja o período e a atualização em Relatórios.", style = MaterialTheme.typography.bodySmall)
         }
-        GoalCards(state)
-        Heading("Progresso semanal")
-        listOf("−3h de tempo de tela", "60% de tempo produtivo", "Aprenda sobre phishing")
-            .forEach { title ->
-                Panel {
-                    Text(title)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        listOf("seg", "ter", "qua", "qui", "sex", "sáb", "dom").forEachIndexed {
-                            i,
-                            day ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(day, style = MaterialTheme.typography.bodySmall)
-                                Text("●", color = if (i < 2) Purple else Lavender)
-                            }
-                        }
-                    }
-                }
-            }
-        PrimaryButton("Adicionar objetivo") { go("goal") }
     }
 }
