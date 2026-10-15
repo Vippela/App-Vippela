@@ -2,6 +2,12 @@
 
 O app agora consulta os aplicativos elegíveis do familiar vinculado e envia permissões reais pelo backend. As instruções de servidor, pareamento, acessibilidade, protocolo e limitações estão no README do projeto `backend-Vippela`.
 
+## Servidor oficial automático — 0.7.2
+
+Novas instalações usam automaticamente `https://vippela-backend.onrender.com/` para cadastro, login, vínculo e sincronização. Não é mais necessário digitar a URL nos celulares. A opção **Alterar servidor** continua disponível para desenvolvimento local ou outro ambiente.
+
+O cliente aguarda até 150 segundos porque o plano gratuito do Render pode suspender o serviço por inatividade. A primeira operação pode demorar cerca de dois minutos; depois que o servidor acorda, as chamadas seguintes são normais.
+
 ## Cadastro e login no servidor — 0.6.0
 
 Não existem mais contas de demonstração: o login, o cadastro e o botão Google são atendidos pelo backend (`POST /auth/register`, `/auth/login`, `/auth/google`). O endereço do servidor agora é pedido **antes** do acesso, em **Perfil → Vínculo familiar → Configurar servidor** e também nas telas de acesso, cadastro e perfil.
@@ -14,7 +20,7 @@ O login Google envia o idToken do Firebase; quem valida a assinatura é o backen
 
 A recuperação de senha por e-mail ainda não está disponível.
 
-Configure a mesma URL em **Perfil → Vínculo familiar → Configurar servidor** nos dois celulares. Gere o código no responsável, confirme no familiar e ative **Proteção familiar Vippela** em Acessibilidade. Em **Aplicativos**, o responsável altera as permissões e acompanha a confirmação do aparelho. A última regra recebida fica salva para uso offline; novas regras precisam de conexão.
+Configure a mesma URL em **Perfil → Vínculo familiar → Configurar servidor** nos dois celulares. Gere o código no responsável, confirme no familiar e ative **Proteção familiar Vippela** em Acessibilidade. Em **Aplicativos**, o responsável altera as permissões de apps, adiciona domínios bloqueados e acompanha a confirmação do aparelho. A última regra recebida fica salva para uso offline; novas regras precisam de conexão.
 
 A autorização é por chaves de vínculo separadas por conta/servidor nesta instalação. Dados de acompanhamento e pedidos antigos continuam demonstrativos. Nenhum perfil sem pareamento recebe um bloqueio real. A proteção depende do serviço de acessibilidade ativo e retorna à tela inicial ao detectar o app bloqueado; não é suspensão de pacotes pelo sistema.
 
@@ -92,6 +98,8 @@ Os testes de movimento controlam o relógio para comparar quadros da abelha e ve
 ## Bloqueio e estatísticas — 0.7.0
 
 O serviço de acessibilidade mostra a tela amarela de bloqueio com animação de subida. O botão Fechar app retorna à tela inicial; a tela também sai ao desativar o serviço ou apagar a tela. Não requer permissão de sobreposição de outros apps: usa a janela do próprio serviço de acessibilidade.
+
+Para sites, a Vippela reconhece a barra de endereço de Chrome, Brave, Edge, Firefox e Samsung Internet. O domínio e seus subdomínios são comparados no próprio aparelho. O endereço acessado e o histórico não são persistidos nem enviados; navegadores internos de outros aplicativos ainda não são cobertos.
 
 Atualize também o backend. A tela Aplicativos recebe ícones PNG pequenos do aparelho vinculado. No familiar, permita o acesso às estatísticas em Aplicativos ou Relatórios. Apenas após esse consentimento a coleta registra a duração de uso dos apps monitorados. Não lê conteúdo de telas. O total exclui apps essenciais, pode ter lacunas quando o serviço não está executando e não deve ser confundido com o total do Bem-estar Digital do Android.
 

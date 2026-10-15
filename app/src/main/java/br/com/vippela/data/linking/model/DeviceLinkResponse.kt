@@ -13,6 +13,7 @@ data class DeviceLinkResponse(
     val lastSeenAt: String?,
     val apps: List<LinkedApp>,
     val blockedPackages: Set<String>,
+    val blockedDomains: Set<String>? = emptySet(),
     val report: UsageReport? = null,
     val reportError: String? = null,
 )
@@ -26,6 +27,8 @@ data class GenerateLinkRequest(
 )
 
 data class RuleRequest(val packageName: String, val blocked: Boolean)
+
+data class DomainRuleRequest(val domain: String, val blocked: Boolean)
 
 data class SyncRequest(
     val apps: List<LinkedApp>,

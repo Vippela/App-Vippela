@@ -18,11 +18,13 @@ class LinkStore(context: Context) {
     private val prefs = this.context.getSharedPreferences("family_links", Context.MODE_PRIVATE)
     private val gson = Gson()
     var server: String
-        get() = prefs.getString("server", "").orEmpty()
+        get() = prefs.getString("server", NetworkModule.defaultServerUrl).orEmpty()
         set(value) {
+            val trimmed = value.trim().trimEnd('/')
+            val normalized = if (trimmed.isEmpty()) "" else "$trimmed/"
             prefs
                 .edit()
-                .putString("server", value.trim().trimEnd('/') + "/")
+                .putString("server", normalized)
                 .remove("active")
                 .commit()
         }

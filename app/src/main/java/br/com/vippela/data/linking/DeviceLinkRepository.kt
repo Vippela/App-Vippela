@@ -47,6 +47,9 @@ class DeviceLinkRepository(private val store: LinkStore, private val scope: Stri
     suspend fun rule(id: String, packageName: String, blocked: Boolean) =
         withReport(api.rule(id, key, RuleRequest(packageName, blocked)))
 
+    suspend fun domainRule(id: String, domain: String, blocked: Boolean) =
+        withReport(api.domainRule(id, key, DomainRuleRequest(domain, blocked)))
+
     private fun collectReport(cached: DeviceLinkResponse, apps: List<LinkedApp>) {
         val cacheKey = store.server + scope + cached.id
         val now = System.currentTimeMillis()

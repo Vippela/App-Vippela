@@ -16,8 +16,13 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 8
-        versionName = "0.7.1"
+        versionName = "0.7.2"
         buildConfigField("boolean", "VIPPELA_GOOGLE_ATIVO", googleAtivo.toString())
+        buildConfigField(
+            "String",
+            "VIPPELA_BACKEND_URL",
+            "\"https://vippela-backend.onrender.com/\"",
+        )
     }
     buildFeatures { compose = true; buildConfig = true }
     testOptions { unitTests.isIncludeAndroidResources = true }

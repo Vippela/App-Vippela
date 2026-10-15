@@ -2,6 +2,7 @@ package br.com.vippela.blocking
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -43,7 +44,11 @@ class AppBlockService : AccessibilityService() {
                 while (isActive) {
                     val account = store.activeScope
                     val visible = overlay.packageName
-                    if (visible != null && (account == null || visible !in (store.cached(account)?.blockedPackages ?: emptySet()))) overlay.dismiss()
+                    val visibleDomain = overlay.domain
+                    val policy = account?.let(store::cached)
+                    if (visible != null && (policy == null ||
+                        (visibleDomain == null && visible !in policy.blockedPackages) ||
+                        (visibleDomain != null && !shouldBlockDomain(visibleDomain, policy.blockedDomains.orEmpty())))) overlay.dismiss()
                     if (account != null && store.configured) {
                         try {
                             DeviceLinkRepository(store, account).sync()
@@ -60,18 +65,14 @@ class AppBlockService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (
-            !::store.isInitialized ||
-                event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-        )
-            return
+        if (!::store.isInitialized || event == null) return
         foreground = event.packageName?.toString()
-        blockIfNeeded(foreground)
+        if (!blockIfNeeded(foreground)) blockSiteIfNeeded(foreground)
     }
 
-    private fun blockIfNeeded(packageName: String?) {
-        val account = store.activeScope ?: return
-        val policy = store.cached(account) ?: return
+    private fun blockIfNeeded(packageName: String?): Boolean {
+        val account = store.activeScope ?: return false
+        val policy = store.cached(account) ?: return false
         val now = android.os.SystemClock.elapsedRealtime()
         if (now - eligibilityTime > 30_000) {
             eligible = store.installedApps().map { it.packageName }.toSet()
@@ -80,11 +81,30 @@ class AppBlockService : AccessibilityService() {
         if (
             policy.status != "active" || !shouldBlock(packageName, policy.blockedPackages, eligible)
         )
-            return
-        if (now - lastBlock < 800) return
+            return false
+        if (now - lastBlock < 800) return true
         if (performGlobalAction(GLOBAL_ACTION_HOME)) {
             lastBlock = now
             overlay.show(packageName!!)
+            return true
+        }
+        return false
+    }
+
+    private fun blockSiteIfNeeded(packageName: String?) {
+        val ids = browserAddressBarIds[packageName] ?: return
+        val account = store.activeScope ?: return
+        val policy = store.cached(account) ?: return
+        if (policy.status != "active" || policy.blockedDomains.isNullOrEmpty()) return
+        val root = rootInActiveWindow ?: return
+        val address = findAddress(root, ids) ?: return
+        val domain = normalizeDomain(address) ?: return
+        if (!shouldBlockDomain(domain, policy.blockedDomains.orEmpty())) return
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastBlock < 800) return
+        if (performGlobalAction(GLOBAL_ACTION_HOME)) {
+            lastBlock = now
+            overlay.show(packageName!!, domain)
         }
     }
 
@@ -98,6 +118,12 @@ class AppBlockService : AccessibilityService() {
         super.onDestroy()
     }
 }
+
+private fun findAddress(root: AccessibilityNodeInfo, ids: List<String>): String? =
+    ids.asSequence()
+        .flatMap { id -> runCatching { root.findAccessibilityNodeInfosByViewId(id) }.getOrDefault(emptyList()).asSequence() }
+        .mapNotNull { it.text?.toString() }
+        .firstOrNull { normalizeDomain(it) != null }
 
 internal fun shouldBlock(packageName: String?, blocked: Set<String>, eligible: Set<String>) =
     packageName != null &&

@@ -31,7 +31,10 @@ class BlockedOverlayTest {
             root.layout(0, 0, 400, 850)
             val bitmap = Bitmap.createBitmap(400,850,Bitmap.Config.ARGB_8888)
             root.draw(Canvas(bitmap))
-            java.io.File("/tmp/vippela-block-preview.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) }
+            java.io.File("build/screenshots/vippela-block-preview.png")
+                .apply { parentFile?.mkdirs() }
+                .outputStream()
+                .use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
             assertTrue((535..620).any { y -> (60..340).any { x -> bitmap.getPixel(x,y) == android.graphics.Color.BLACK } })
             val button = root.getChildAt(2) as Button
             assertEquals("Fechar app", button.text.toString())

@@ -325,6 +325,15 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         }
     }
 
+    fun changeRemoteDomainRule(domain: String, blocked: Boolean) {
+        val id = currentLink?.id ?: return
+        if (!isParent) return
+        remoteOperation { repository ->
+            val updated = repository.domainRule(id, domain, blocked)
+            remoteLinks = remoteLinks.map { if (it.id == id) updated else it }
+        }
+    }
+
     private fun remoteOperation(action: suspend (DeviceLinkRepository) -> Unit) {
         if (linkBusy) return
         val repository =

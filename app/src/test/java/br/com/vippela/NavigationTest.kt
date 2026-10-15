@@ -10,6 +10,7 @@ import br.com.vippela.ui.navigation.VippelaApp
 import br.com.vippela.ui.theme.VippelaTheme
 import java.io.File
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +24,38 @@ import org.robolectric.annotation.GraphicsMode
 class NavigationTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
     private val state = DemoState(FakeAuthGateway())
+
+    @Before
+    fun keepUiTestsOffline() {
+        compose.activity
+            .getSharedPreferences("family_links", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("server", "")
+            .commit()
+    }
+
+    @Test
+    fun officialServerIsShownAsAutomaticBeforeLogin() {
+        compose.activity
+            .getSharedPreferences("family_links", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
+        val initial = DemoState(FakeAuthGateway())
+        initial.attachLinks(br.com.vippela.data.linking.LinkStore(compose.activity))
+
+        compose.setContent {
+            VippelaTheme { br.com.vippela.ui.screens.ServerConfiguration(initial) }
+        }
+
+        compose.onNodeWithText("Servidor Vippela").assertIsDisplayed()
+        compose
+            .onNodeWithText(
+                "Conexão automática com o servidor oficial. A primeira conexão pode levar até dois minutos."
+            )
+            .assertIsDisplayed()
+        compose.onNodeWithText("Alterar servidor").assertIsDisplayed()
+    }
 
     private fun start(account: String) {
         compose.setContent { VippelaTheme { VippelaApp(state) } }

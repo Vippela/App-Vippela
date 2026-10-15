@@ -38,6 +38,13 @@ interface DeviceLinkApi {
         @Body request: RuleRequest,
     ): DeviceLinkResponse
 
+    @PUT("links/{id}/domain-rule")
+    suspend fun domainRule(
+        @Path("id") id: String,
+        @Header("X-Owner-Key") key: String,
+        @Body request: DomainRuleRequest,
+    ): DeviceLinkResponse
+
     @POST("links/{id}/sync")
     suspend fun sync(
         @Path("id") id: String,

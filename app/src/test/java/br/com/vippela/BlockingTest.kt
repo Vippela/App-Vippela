@@ -2,6 +2,8 @@ package br.com.vippela
 
 import android.content.Context
 import br.com.vippela.blocking.shouldBlock
+import br.com.vippela.blocking.normalizeDomain
+import br.com.vippela.blocking.shouldBlockDomain
 import br.com.vippela.data.linking.*
 import br.com.vippela.data.linking.model.*
 import org.junit.Assert.*
@@ -21,6 +23,20 @@ class BlockingTest {
     @Before
     fun clear() {
         context.getSharedPreferences("family_links", Context.MODE_PRIVATE).edit().clear().commit()
+    }
+
+    @Test
+    fun officialServerIsConfiguredAutomaticallyAndCanBeOverridden() {
+        val store = LinkStore(context)
+        assertEquals("https://vippela-backend.onrender.com/", store.server)
+        assertTrue(store.configured)
+
+        store.server = "https://custom.example.com/path/"
+        assertEquals("https://custom.example.com/path/", LinkStore(context).server)
+
+        store.server = ""
+        assertEquals("", LinkStore(context).server)
+        assertFalse(store.configured)
     }
 
     private fun policy() =
@@ -49,6 +65,18 @@ class BlockingTest {
         assertFalse(shouldBlock("com.android.settings", blocked, eligible))
         assertFalse(shouldBlock("br.com.vippela", blocked, eligible))
         assertFalse(shouldBlock(null, blocked, eligible))
+    }
+
+    @Test
+    fun visibleBrowserAddressesAreNormalizedAndMatchedWithoutSavingHistory() {
+        assertEquals("youtube.com", normalizeDomain("https://YouTube.com/watch?v=123"))
+        assertEquals("youtube.com", normalizeDomain("https://www.youtube.com/watch?v=123"))
+        assertEquals("youtube.com", normalizeDomain("youtube.com/shorts/abc"))
+        assertNull(normalizeDomain("pesquisa sem endereco"))
+        assertTrue(shouldBlockDomain("m.youtube.com", setOf("youtube.com")))
+        assertTrue(shouldBlockDomain("youtube.com", setOf("youtube.com")))
+        assertFalse(shouldBlockDomain("notyoutube.com", setOf("youtube.com")))
+        assertFalse(shouldBlockDomain("youtube.com.example.org", setOf("youtube.com")))
     }
 
     @Test

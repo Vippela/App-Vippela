@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import br.com.vippela.blocking.AppBlockService
+import br.com.vippela.blocking.normalizeDomain
 import br.com.vippela.data.DemoState
+import br.com.vippela.data.linking.NetworkModule
 import br.com.vippela.ui.components.*
 import br.com.vippela.ui.theme.*
 import java.time.Instant
@@ -19,6 +21,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun LinkedAppsScreen(state: DemoState, go: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
+    var domainInput by remember { mutableStateOf("") }
+    var domainError by remember { mutableStateOf<String?>(null) }
     Page {
         val link = state.currentLink
         if (link == null) {
@@ -60,6 +64,52 @@ fun LinkedAppsScreen(state: DemoState, go: (String) -> Unit) {
                 )
             }
             if (!state.isParent) { ProtectionSetup(); UsagePermissionCard() }
+            Panel {
+                Text("Sites bloqueados", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    if (state.isParent)
+                        "Adicione um domínio. O bloqueio também vale para os subdomínios."
+                    else "A verificação do endereço acontece somente neste aparelho; o histórico não é salvo nem enviado.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                if (state.isParent) {
+                    OutlinedTextField(
+                        domainInput,
+                        {
+                            domainInput = it
+                            domainError = null
+                        },
+                        Modifier.fillMaxWidth(),
+                        label = { Text("Ex.: youtube.com") },
+                        singleLine = true,
+                        isError = domainError != null,
+                        supportingText = domainError?.let { message -> { Text(message) } },
+                    )
+                    PrimaryButton("Bloquear site") {
+                        val domain = normalizeDomain(domainInput)
+                        if (domain == null) domainError = "Informe um domínio válido."
+                        else {
+                            state.changeRemoteDomainRule(domain, true)
+                            domainInput = ""
+                        }
+                    }
+                }
+                val domains = link.blockedDomains.orEmpty().sorted()
+                if (domains.isEmpty()) Text("Nenhum site bloqueado.")
+                domains.forEach { domain ->
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(domain, Modifier.weight(1f))
+                        if (state.isParent)
+                            TextButton(
+                                onClick = { state.changeRemoteDomainRule(domain, false) },
+                                enabled = !state.linkBusy,
+                            ) { Text("Remover") }
+                    }
+                }
+            }
             OutlinedTextField(
                 query,
                 { query = it },
@@ -120,9 +170,22 @@ fun ServerConfiguration(state: DemoState) {
                 placeholder = { Text("https://servidor.exemplo.com/") },
                 singleLine = true,
             )
-            PrimaryButton("Salvar endereço") { if (state.configureServer(address)) editing = false }
+            PrimaryButton("Salvar endereço") {
+                if (state.configureServer(address)) editing = false
+            }
         }
-    } else TextButton({ editing = true }) { Text("Configurar servidor") }
+    } else {
+        Panel {
+            Text("Servidor Vippela", style = MaterialTheme.typography.titleMedium)
+            Text(
+                if (state.serverAddress == NetworkModule.defaultServerUrl)
+                    "Conexão automática com o servidor oficial. A primeira conexão pode levar até dois minutos."
+                else "Servidor personalizado: ${state.serverAddress}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TextButton({ editing = true }) { Text("Alterar servidor") }
+        }
+    }
 }
 
 @Composable
@@ -148,7 +211,7 @@ fun ProtectionSetup() {
             style = MaterialTheme.typography.titleMedium,
         )
         Text(
-            "A Vippela identifica o app aberto e retorna à tela inicial se ele estiver bloqueado pelo responsável vinculado. Não lê o conteúdo das telas. Os nomes dos apps elegíveis e a confirmação das regras são enviados ao servidor da família."
+            "A Vippela identifica o app aberto e, nos navegadores compatíveis, lê somente o endereço visível para aplicar os bloqueios definidos pelo responsável. Essa verificação ocorre neste aparelho: os endereços acessados e o histórico não são salvos nem enviados. A Vippela não lê mensagens ou senhas."
         )
         Text(
             "As últimas regras recebidas continuam valendo sem internet enquanto a proteção estiver ativa."
@@ -163,7 +226,7 @@ fun ProtectionSetup() {
             title = { Text("Proteção familiar") },
             text = {
                 Text(
-                    "Para bloquear apps, ative ‘Proteção familiar Vippela’ em Acessibilidade. Você pode desativar esse acesso nas configurações do Android."
+                    "Ao continuar, você permite que a Vippela identifique o aplicativo aberto e leia somente a barra de endereço dos navegadores compatíveis. Isso é usado para bloquear apps e sites combinados com o responsável. Os endereços acessados e o histórico não são salvos nem enviados. Você pode desativar esse acesso nas configurações do Android."
                 )
             },
             confirmButton = {

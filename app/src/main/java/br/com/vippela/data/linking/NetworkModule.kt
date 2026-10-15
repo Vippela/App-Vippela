@@ -9,6 +9,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkModule {
+    val defaultServerUrl: String = BuildConfig.VIPPELA_BACKEND_URL
+
     fun validUrl(value: String): Boolean {
         val url = runCatching { URI(value) }.getOrNull() ?: return false
         return (url.scheme == "https" || (BuildConfig.DEBUG && url.scheme == "http")) &&
@@ -35,8 +37,10 @@ object NetworkModule {
     private fun retrofit(url: String, token: (() -> String?)?): Retrofit {
         val client =
             OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .callTimeout(15, TimeUnit.SECONDS)
+                // O plano gratuito do Render pode levar cerca de dois minutos para acordar.
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(150, TimeUnit.SECONDS)
+                .callTimeout(150, TimeUnit.SECONDS)
         if (token != null) {
             client.addInterceptor { chain ->
                 val atual = token()

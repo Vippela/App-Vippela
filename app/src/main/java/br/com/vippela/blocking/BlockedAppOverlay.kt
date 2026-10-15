@@ -23,8 +23,10 @@ internal class BlockedAppOverlay(private val context: Context, private val close
     private var view: View? = null
     var packageName: String? = null
         private set
+    var domain: String? = null
+        private set
 
-    fun show(pkg: String) {
+    fun show(pkg: String, blockedDomain: String? = null) {
         if (view != null) return
         val root = object : FrameLayout(context) {
             override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -60,7 +62,7 @@ internal class BlockedAppOverlay(private val context: Context, private val close
         val art = BlockIllustration(context)
         root.addView(art)
         val message = TextView(context).apply {
-            text = "Com mais cuidado,\npequena abelha..."
+            text = if (blockedDomain == null) "Com mais cuidado,\npequena abelha..." else "Este site faz parte dos\ncombinados da família."
             textSize = 24f
             typeface = context.resources.getFont(R.font.poppins_regular)
             setTextColor(Color.BLACK)
@@ -69,7 +71,7 @@ internal class BlockedAppOverlay(private val context: Context, private val close
         }
         root.addView(message)
         val button = Button(context).apply {
-            text = "Fechar app"
+            text = if (blockedDomain == null) "Fechar app" else "Sair do site"
             textSize = 23f
             isAllCaps = false
             typeface = context.resources.getFont(R.font.poppins_regular)
@@ -92,6 +94,7 @@ internal class BlockedAppOverlay(private val context: Context, private val close
             windows.addView(root, params)
             view = root
             packageName = pkg
+            domain = blockedDomain
             root.requestFocus()
             root.post {
                 root.translationY = root.height.toFloat()
@@ -108,6 +111,7 @@ internal class BlockedAppOverlay(private val context: Context, private val close
         view?.let { it.animate().cancel(); runCatching { windows.removeViewImmediate(it) } }
         view = null
         packageName = null
+        domain = null
     }
 }
 
