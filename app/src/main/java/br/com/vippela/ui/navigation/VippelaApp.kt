@@ -18,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import br.com.vippela.data.DemoState
+import br.com.vippela.data.learning.LearningState
 import br.com.vippela.ui.components.Header
 import br.com.vippela.ui.screens.*
 import br.com.vippela.ui.theme.*
@@ -39,6 +40,14 @@ private fun VippelaContent(state: DemoState) {
         mutableStateOf(br.com.vippela.data.Role.RESPONSAVEL)
     }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val learning = remember { LearningState(context.applicationContext) }
+    val learningKey =
+        when {
+            state.role == null -> ""
+            state.isParent -> "resp:${state.usuarioId ?: state.email}"
+            else -> "fam:${state.usuarioId ?: state.email}:${state.selectedId}"
+        }
+    LaunchedEffect(learningKey) { learning.bind(learningKey) }
     LaunchedEffect(state.role, state.email, state.usuarioId, state.sessaoGeracao) {
         state.attachLinks(br.com.vippela.data.linking.LinkStore(context))
     }
@@ -57,6 +66,11 @@ private fun VippelaContent(state: DemoState) {
         else nav.navigate(destination) { launchSingleTop = true }
     }
     val back: () -> Unit = { nav.popBackStack() }
+    // Resultado e certificado voltam direto para a trilha, sem prender o
+    // usuário na pilha de quiz.
+    val backToTrack: () -> Unit = {
+        if (!nav.popBackStack("track/{slug}", false)) nav.popBackStack()
+    }
     val enter: () -> Unit = { nav.navigate("home") { popUpTo(nav.graph.id) { inclusive = true } } }
     val logout: () -> Unit = {
         mainRoutes.forEach { nav.clearBackStack(it) }
@@ -74,7 +88,7 @@ private fun VippelaContent(state: DemoState) {
     val title =
         when (route) {
             "home" -> "Início"
-            "learn" -> "Aprendizado"
+            "learn" -> "Trilhas"
             "reports" -> "Relatórios"
             "profile",
             "member" -> "Perfil"
@@ -90,8 +104,13 @@ private fun VippelaContent(state: DemoState) {
             "alerts",
             "alerts/{filter}",
             "alert/{index}" -> "Alertas"
-            "lesson/{index}",
-            "privacy-lesson" -> "Aprendizado"
+            "track/{slug}" -> "Trilha"
+            "lesson/{id}" -> "Lição"
+            "quiz/{alvo}" -> "Quiz"
+            "resultado" -> "Resultado"
+            "badges" -> "Meus selos"
+            "certificado/{slug}" -> "Certificado"
+            "familia-progresso" -> "Progresso da família"
             "release",
             "release/{app}" -> "Liberação"
             "register" -> "Cadastro"
@@ -122,7 +141,12 @@ private fun VippelaContent(state: DemoState) {
                     )
                         Header(
                             title,
-                            if (route in mainRoutes) null else back,
+                            when {
+                                route in mainRoutes -> null
+                                route == "resultado" || route.startsWith("certificado/") ->
+                                    backToTrack
+                                else -> back
+                            },
                             { go("notifications") },
                             { go("settings") },
                         )
@@ -228,7 +252,44 @@ private fun VippelaContent(state: DemoState) {
                         composable("register") { RegisterScreen(state, enter, registrationRole) }
                         composable("recover") { RecoverScreen(back) }
                         composable("home") { if (state.role != null) HomeScreen(state, go) }
-                        composable("learn") { LearningScreen(state, go) }
+                        composable("learn") { LearningHomeScreen(state, learning, go) }
+                        composable("track/{slug}") {
+                            TrackDetailScreen(
+                                it.arguments?.getString("slug").orEmpty(),
+                                learning,
+                                go,
+                                back,
+                            )
+                        }
+                        composable("lesson/{id}") {
+                            LessonScreen(
+                                it.arguments?.getString("id").orEmpty(),
+                                learning,
+                                go,
+                                back,
+                            )
+                        }
+                        composable("quiz/{alvo}") {
+                            QuizScreen(
+                                it.arguments?.getString("alvo").orEmpty(),
+                                learning,
+                                go,
+                                back,
+                            )
+                        }
+                        composable("resultado") { ResultScreen(learning, go, backToTrack) }
+                        composable("badges") { BadgesScreen(learning, back) }
+                        composable("certificado/{slug}") {
+                            CertificateScreen(
+                                it.arguments?.getString("slug").orEmpty(),
+                                state,
+                                learning,
+                                backToTrack,
+                            )
+                        }
+                        composable("familia-progresso") {
+                            FamilyProgressScreen(state, learning, back)
+                        }
                         composable("reports") { ReportsScreen(state, go) }
                         composable("profile") { ProfileScreen(state, go, logout) }
                         composable("family") { if (state.isParent) FamilyListScreen(state, go) }
@@ -255,17 +316,6 @@ private fun VippelaContent(state: DemoState) {
                         }
                         composable("performance") { PerformanceScreen(state, go) }
                         composable("goal") { GoalScreen(state, back) }
-                        composable(
-                            "lesson/{index}",
-                            arguments = listOf(navArgument("index") { type = NavType.IntType }),
-                        ) {
-                            LessonScreen(
-                                (it.arguments?.getInt("index") ?: 0).coerceIn(0, 8),
-                                state,
-                                back,
-                            )
-                        }
-                        composable("privacy-lesson") { PrivacyLessonScreen(back) }
                         composable("alerts") { AlertsScreen("Todos", go) }
                         composable("alerts/{filter}") {
                             AlertsScreen(it.arguments?.getString("filter") ?: "Todos", go)

@@ -49,7 +49,7 @@ fun ProfileScreen(state: DemoState, go: (String) -> Unit, logout: () -> Unit) {
         }
         if (!state.isParent) SecondaryButton("Meu desempenho") { go("performance") }
         SecondaryButton("Sair da conta", logout)
-        Text("Vippela • 0.5.0", style = MaterialTheme.typography.bodySmall, color = Muted)
+        Text("Vippela • ${br.com.vippela.BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Muted)
     }
 }
 

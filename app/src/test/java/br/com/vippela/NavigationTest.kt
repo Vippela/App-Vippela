@@ -85,6 +85,7 @@ class NavigationTest {
     @Test
     fun parentApprovesRequestAndSeesUpdatedWhitelist() {
         start("cleber@example.com")
+        compose.runOnIdle { state.requestApp("YouTube", "Para estudar") }
         compose.onNodeWithText("Bem-vindo Cleber").assertIsDisplayed()
         screenshot("responsavel")
         compose.onAllNodesWithText("Acessar  ›")[1].performScrollTo().performClick()
@@ -100,12 +101,31 @@ class NavigationTest {
         screenshot("familiar")
         compose.onNodeWithText("Trilhas").performClick()
         screenshot("trilhas")
-        compose.onNodeWithText("O que esperar do curso?").performScrollTo().performClick()
-        compose.onNodeWithText("Conferir a origem antes de abrir").performScrollTo().performClick()
-        compose.onNodeWithText("Verificar resposta").performScrollTo().performClick()
-        compose.onNodeWithText("Muito bem! Aula concluída.").assertExists()
-        assertTrue(state.completed[state.lessonKey(0)] == true)
-        compose.onNodeWithText("Voltar às trilhas").performScrollTo().performClick()
+        compose
+            .onAllNodesWithText("Contas e senhas: a chave da sua casa digital")[1]
+            .performScrollTo()
+            .performClick()
+        compose.onNodeWithText("Por que contas são roubadas").performScrollTo().performClick()
+        compose.onNodeWithText("Fazer o quiz").performScrollTo().performClick()
+        compose
+            .onNodeWithText("Pedir dinheiro aos seus contatos e mudar sua senha")
+            .performScrollTo()
+            .performClick()
+        compose.onNodeWithText("Conferir resposta").performScrollTo().performClick()
+        compose.onNodeWithText("Próxima pergunta").performScrollTo().performClick()
+        compose.onNodeWithText("Repetir a mesma senha em vários sites").performScrollTo().performClick()
+        compose.onNodeWithText("Conferir resposta").performScrollTo().performClick()
+        compose.onNodeWithText("Próxima pergunta").performScrollTo().performClick()
+        compose
+            .onNodeWithText("O código de verificação que chegou por SMS")
+            .performScrollTo()
+            .performClick()
+        compose.onNodeWithText("Conferir resposta").performScrollTo().performClick()
+        compose.onNodeWithText("Ver resultado").performScrollTo().performClick()
+        compose.onNodeWithText("Muito bem!").assertExists()
+        compose.onNodeWithText("Voltar à trilha").performScrollTo().performClick()
+        compose.onNodeWithText("1 de 3 lições · 10 min").assertExists()
+        compose.onNodeWithContentDescription("Voltar").performClick()
         compose.onNodeWithText("Perfil").performClick()
         compose.onNodeWithText("Minha família").assertDoesNotExist()
     }
@@ -227,5 +247,28 @@ class NavigationTest {
         )
         assertNull(br.com.vippela.data.auth.SessionStore(context).atual())
         store.limpar()
+    }
+
+    @Test fun registrationRequiresAValidBirthDateAndSubmitsIsoDate() {
+        val gateway = FakeAuthGateway()
+        val registration = DemoState(gateway)
+        compose.setContent {
+            VippelaTheme { br.com.vippela.ui.screens.RegisterScreen(registration, {}) }
+        }
+        compose.onNodeWithText("Nome").performTextInput("Ana")
+        compose.onNodeWithText("E-mail").performTextInput("ana.nova@example.test")
+        compose.onNodeWithText("Senha (mínimo 8 caracteres)").performTextInput("senha123")
+        compose.onNodeWithText("Criar conta").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Data de nascimento").performScrollTo().performTextInput("31022000")
+        compose.onNodeWithText("Criar conta").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Data de nascimento").performScrollTo().performTextReplacement("29022000")
+        compose.onNodeWithText("Nome").performScrollTo().performTextReplacement("a".repeat(51))
+        compose.onNodeWithText("Criar conta").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Nome").performScrollTo().performTextReplacement("Ana")
+        compose.onNodeWithText("Senha (mínimo 8 caracteres)").performScrollTo().performTextReplacement("á".repeat(37))
+        compose.onNodeWithText("Criar conta").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Senha (mínimo 8 caracteres)").performScrollTo().performTextReplacement("senha123")
+        compose.onNodeWithText("Criar conta").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals("2000-02-29", gateway.ultimaDataNascimento) }
     }
 }

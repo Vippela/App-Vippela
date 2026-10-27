@@ -4,7 +4,6 @@ import br.com.vippela.blocking.AppBlockService
 import br.com.vippela.data.linking.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.launch
 
 class DeviceLinkRepository(private val store: LinkStore, private val scope: String) {
     private val api = NetworkModule.api(store.server)
@@ -38,7 +37,6 @@ class DeviceLinkRepository(private val store: LinkStore, private val scope: Stri
     companion object {
         private val reports = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, UsageReport>>()
         private val uploads = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Boolean>>()
-        private val telemetryScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
         private val reportMutex = kotlinx.coroutines.sync.Mutex()
     }
 
@@ -50,27 +48,25 @@ class DeviceLinkRepository(private val store: LinkStore, private val scope: Stri
     suspend fun domainRule(id: String, domain: String, blocked: Boolean) =
         withReport(api.domainRule(id, key, DomainRuleRequest(domain, blocked)))
 
-    private fun collectReport(cached: DeviceLinkResponse, apps: List<LinkedApp>) {
+    private suspend fun collectReport(cached: DeviceLinkResponse, apps: List<LinkedApp>) {
         val cacheKey = store.server + scope + cached.id
         val now = System.currentTimeMillis()
         val granted = br.com.vippela.data.usage.UsageCollector.permitted(store.context)
         val uploaded = uploads[cacheKey]
         if (uploaded != null && uploaded.second == granted && now - uploaded.first < 60000) return
         if (!reportMutex.tryLock()) return
-        telemetryScope.launch {
-            try {
-                if (store.activeScope != scope) return@launch
-                val report = br.com.vippela.data.usage.UsageCollector(store.context, scope).collect(apps)
-                store.save(scope, (store.cached(scope) ?: cached).copy(report = report, reportError = "Relatório salvo neste aparelho. Aguardando envio ao responsável."))
-                if (store.activeScope != scope) return@launch
-                api.uploadReport(cached.id, key, report)
-                uploads[cacheKey] = now to report.permission
-                store.save(scope, (store.cached(scope) ?: cached).copy(reportError = null))
-            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
-            catch (e: Exception) {
-                store.save(scope, (store.cached(scope) ?: cached).copy(reportError = reportFailure(e)))
-            } finally { reportMutex.unlock() }
-        }
+        try {
+            if (store.activeScope != scope) return
+            val report = br.com.vippela.data.usage.UsageCollector(store.context, scope).collect(apps)
+            store.save(scope, (store.cached(scope) ?: cached).copy(report = report, reportError = "Relatório salvo neste aparelho. Aguardando envio ao responsável."))
+            if (store.activeScope != scope) return
+            api.uploadReport(cached.id, key, report)
+            uploads[cacheKey] = now to report.permission
+            store.save(scope, (store.cached(scope) ?: cached).copy(reportError = null))
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+        catch (e: Exception) {
+            store.save(scope, (store.cached(scope) ?: cached).copy(reportError = reportFailure(e)))
+        } finally { reportMutex.unlock() }
     }
 
     suspend fun sync(): DeviceLinkResponse? = withContext(Dispatchers.IO) {

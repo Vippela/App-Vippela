@@ -36,89 +36,6 @@ data class Request(
 
 data class Goal(val title: String, val minutes: Int)
 
-data class Lesson(
-    val title: String,
-    val text: String,
-    val question: String,
-    val answers: List<String>,
-    val correct: Int,
-)
-
-val lessons =
-    listOf(
-        Lesson(
-            "O que esperar do curso?",
-            "Vamos aprender a reconhecer mensagens suspeitas e cuidar da nossa privacidade. Antes de abrir um link, observe quem enviou e converse com alguém de confiança se tiver dúvidas.",
-            "O que fazer ao receber um link desconhecido?",
-            listOf(
-                "Abrir imediatamente",
-                "Conferir a origem antes de abrir",
-                "Enviar para todos os amigos",
-            ),
-            1,
-        ),
-        Lesson(
-            "Tipos de ataques de phishing",
-            "Phishing é uma tentativa de enganar você para obter informações. Mensagens com urgência, prêmios inesperados e pedidos de senha merecem atenção. Acesse o serviço pelo aplicativo ou endereço que você já conhece.",
-            "Uma mensagem pede sua senha para liberar um prêmio. Você deve:",
-            listOf(
-                "Informar a senha",
-                "Não informar e verificar pelo canal oficial",
-                "Mandar uma foto do documento",
-            ),
-            1,
-        ),
-        Lesson(
-            "Agentes maliciosos",
-            "Pessoas mal-intencionadas podem fingir ser amigos ou empresas. Não compartilhe códigos de acesso e procure ajuda se alguém pressionar você. Pedir ajuda é uma forma de se proteger.",
-            "Alguém pede seu código de verificação. Qual é a atitude segura?",
-            listOf("Compartilhar o código", "Publicar o código", "Guardar o código e buscar ajuda"),
-            2,
-        ),
-        Lesson(
-            "Mensagens urgentes",
-            "Golpistas usam urgência para impedir que você pense. Pare, confira o remetente e procure o canal oficial.",
-            "Uma mensagem diz que sua conta será apagada em cinco minutos. O que fazer?",
-            listOf("Clicar sem pensar", "Parar e verificar pelo canal oficial", "Enviar sua senha"),
-            1,
-        ),
-        Lesson(
-            "Confira o endereço",
-            "Um endereço pode imitar o nome de um serviço. Abra o aplicativo que você já usa quando precisar conferir um aviso.",
-            "Como conferir uma cobrança inesperada?",
-            listOf("Pelo link recebido", "Pelo aplicativo oficial", "Enviando o cartão no chat"),
-            1,
-        ),
-        Lesson(
-            "Peça ajuda",
-            "Se você clicou em algo suspeito, avise uma pessoa de confiança. Pedir ajuda cedo facilita lidar com o problema.",
-            "Você abriu um link suspeito. Qual o próximo passo?",
-            listOf("Esconder o ocorrido", "Compartilhar o link", "Avisar uma pessoa de confiança"),
-            2,
-        ),
-        Lesson(
-            "Senhas únicas",
-            "Use senhas diferentes para cada conta e não as compartilhe. Um gerenciador de senhas pode ajudar sua família.",
-            "Qual hábito protege suas contas?",
-            listOf("Repetir a mesma senha", "Usar senhas diferentes", "Publicar a senha"),
-            1,
-        ),
-        Lesson(
-            "Códigos de acesso",
-            "Códigos de verificação são pessoais. Não os entregue a alguém que entrou em contato com você.",
-            "Uma pessoa pede um código que chegou por SMS. Você deve:",
-            listOf("Enviar imediatamente", "Manter o código privado", "Enviar metade do código"),
-            1,
-        ),
-        Lesson(
-            "Aprender em família",
-            "Conversem sobre dúvidas e experiências. A segurança digital é construída com orientação e cuidado.",
-            "Como ajudar alguém que encontrou uma mensagem suspeita?",
-            listOf("Ouvir e verificar juntos", "Culpar a pessoa", "Ignorar a dúvida"),
-            0,
-        ),
-    )
-
 class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
     var darkMode by mutableStateOf(false)
 
@@ -190,7 +107,6 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         mutableStateMapOf<Int, List<Goal>>().apply {
             members.forEach { put(it.id, listOf(Goal("Estudar", 120), Goal("Dormir", 480))) }
         }
-    val completed = mutableStateMapOf<String, Boolean>()
     val linked
         get() = currentLink?.status == "active"
 
@@ -235,7 +151,7 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         linkError = null
         linkBusy = false
         linkRepository = null
-        if (role == null) return
+        if (role == null) { store.activate(null); return }
         val account = usuarioId ?: "email:${email.trim().lowercase()}"
         val scope = store.scope(account + ":" + role!!.name)
         store.activate(if (isParent) null else scope)
@@ -296,6 +212,9 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
             return false
         }
         val store = linkStore ?: return false
+        val normalized = value.trim().trimEnd('/') + "/"
+        if (normalized == store.server) return true
+        logout(revogar = false)
         store.server = value
         attachLinks(store)
         return true
@@ -393,7 +312,8 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
     val servidorPronto
         get() = auth?.servidorConfigurado == true
 
-    private val authScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val authScope get() = viewModelScope
+    private var authJob: Job? = null
 
     private fun autenticar(
         chamada: suspend () -> SessaoLocal,
@@ -408,7 +328,8 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         if (authBusy) return
         authBusy = true
         authError = null
-        authScope.launch {
+        authJob?.cancel()
+        authJob = authScope.launch {
             try {
                 aplicarSessao(chamada())
                 concluido(true)
@@ -432,10 +353,11 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         address: String,
         password: String,
         newRole: Role,
+        dataNascimento: String? = null,
         concluido: (Boolean) -> Unit = {},
     ) {
         autenticar(
-            { requireNotNull(auth).cadastrar(name, address, password, newRole) },
+            { requireNotNull(auth).cadastrar(name, address, password, newRole, dataNascimento) },
             {
                 if (it) registrationEmail = ""
                 concluido(it)
@@ -465,12 +387,15 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
     fun restaurarSessao() {
         val gateway = auth ?: return
         if (!gateway.servidorConfigurado) return
-        authScope.launch {
+        authJob?.cancel()
+        authJob = authScope.launch {
             gateway.restaurar()?.let { sessao -> aplicarSessao(sessao) }
         }
     }
 
-    fun logout() {
+    fun logout(revogar: Boolean = true) {
+        authJob?.cancel()
+        authBusy = false
         sessionGeneration++
         remoteJob?.cancel()
         remoteAction?.cancel()
@@ -486,11 +411,45 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         entrouComGoogle = false
         authError = null
         selectedId = 1
+        limparDadosLocais()
         sessaoGeracao++
-        auth?.let { gateway -> authScope.launch { gateway.sair() } }
+        auth?.let { gateway ->
+            if (revogar) authScope.launch(start = CoroutineStart.UNDISPATCHED) { gateway.sair() }
+            else gateway.limparSessao()
+        }
+    }
+
+    private fun limparDadosLocais() {
+        members.clear()
+        members.addAll(listOf(
+            FamilyMember(1, "Marina Garcia", 17, 134, "Atenção"),
+            FamilyMember(2, "Gabriel Silva", 12, 95, "Baixo"),
+            FamilyMember(3, "Maria Liz", 10, 186, "Alto"),
+        ))
+        limits.clear()
+        apps.clear()
+        goals.clear()
+        requests.clear()
+        members.forEach {
+            limits[it.id] = 180
+            apps[it.id] = listOf(AppEntry("YouTube", 0, false), AppEntry("Instagram", 0, true),
+                AppEntry("TikTok", 0, false), AppEntry("Khan Academy", 0, true))
+            goals[it.id] = emptyList()
+        }
+        contactEmails.clear()
+        contactPhones.clear()
+        photos.clear()
+        email = ""
+        displayName = ""
+        registrationEmail = ""
+        notifications = true
+        reminders = true
+        darkMode = false
+        linkError = null
     }
 
     private fun aplicarSessao(sessao: SessaoLocal) {
+        if (usuarioId != sessao.id) limparDadosLocais()
         usuarioId = sessao.id
         entrouComGoogle = sessao.email.isGoogleLike()
         role = sessao.tipo
@@ -541,6 +500,4 @@ class DemoState(private val auth: AuthGateway? = null) : ViewModel() {
         goals[id] = emptyList()
         selectedId = id
     }
-
-    fun lessonKey(index: Int) = "${role?.name}:${if (isParent) 0 else selectedId}:$index"
 }

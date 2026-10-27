@@ -17,6 +17,7 @@ class FakeAuthGateway : AuthGateway {
 
     /** Só devolve sessão em restaurar() quando o teste pedir. */
     var sessaoRestauravel: SessaoLocal? = null
+    var ultimaDataNascimento: String? = null
 
     override val servidorConfigurado = true
 
@@ -53,7 +54,9 @@ class FakeAuthGateway : AuthGateway {
         email: String,
         senha: String,
         tipo: Role,
+        dataNascimento: String?,
     ): SessaoLocal {
+        ultimaDataNascimento = dataNascimento
         val chave = email.trim().lowercase()
         if (senhas.containsKey(chave)) throw IllegalStateException("Este e-mail já está cadastrado.")
         return criar(nome, chave, senha, tipo)

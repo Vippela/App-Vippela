@@ -23,7 +23,7 @@ class DemoStateTest {
         assertEquals(Role.FAMILIAR, state.role)
         assertEquals(1, state.selectedId)
         assertEquals("Ana", state.selected.name)
-        assertEquals("Cleber", state.displayName)
+        assertEquals("", state.displayName)
         assertEquals("ana@example.com", state.email)
     }
 
@@ -35,7 +35,7 @@ class DemoStateTest {
         state.completeGoogleRegistration(Role.FAMILIAR)
 
         assertEquals("Marina", state.selected.name)
-        assertEquals("Cleber", state.displayName)
+        assertEquals("", state.displayName)
         assertNotNull(state.usuarioId)
     }
 
@@ -103,5 +103,22 @@ class DemoStateTest {
         assertNull(state.role)
         assertNotNull(state.authError)
         assertTrue(state.authError!!.isNotBlank())
+    }
+
+    @Test fun switchingAccountsClearsFamilyAndPersonalData() {
+        val state = DemoState(FakeAuthGateway())
+        state.login("cleber@example.com", "senha123")
+        state.addMember("Familiar privado", 10)
+        state.phone = "11999999999"
+        state.photo = "content://private"
+        state.requestApp("YouTube", "Mensagem privada")
+        state.logout()
+        state.login("marina@example.com", "senha123")
+        assertTrue(state.members.none { it.name == "Familiar privado" })
+        assertTrue(state.requests.isEmpty())
+        assertTrue(state.goals.values.all { it.isEmpty() })
+        assertEquals("", state.phone)
+        assertNull(state.photo)
+        assertEquals("Marina", state.selected.name)
     }
 }

@@ -53,7 +53,7 @@ private fun ParentHome(state: DemoState, go: (String) -> Unit) {
                             style = MaterialTheme.typography.labelMedium,
                             color = Muted,
                         )
-                        Text("● Online", color = Green, style = MaterialTheme.typography.bodySmall)
+                        ConnectionStatus(state.currentLink)
                         Button({ go("member") }, shape = RoundedCornerShape(10.dp)) {
                             Text(
                                 "Verificar atividade →",
@@ -228,7 +228,7 @@ fun FamilyListScreen(state: DemoState, go: (String) -> Unit) {
                     Avatar(member.name, photo = state.photos["member:${member.id}"])
                     Column(Modifier.weight(1f)) {
                         Text(member.name, style = MaterialTheme.typography.titleMedium)
-                        Text("● Online", color = Green, style = MaterialTheme.typography.bodySmall)
+                        ConnectionStatus(state.remoteLinks.firstOrNull { it.memberKey == member.id.toString() })
                     }
                     RiskBadge(member.risk)
                 }
@@ -254,11 +254,7 @@ fun MemberScreen(state: DemoState, go: (String) -> Unit) {
                     RiskBadge(state.selected.risk)
                 }
             }
-            Text(
-                "● Dispositivo online • último uso agora",
-                style = MaterialTheme.typography.labelMedium,
-                color = Green,
-            )
+            ConnectionStatus(state.currentLink)
         }
         Heading("Hoje")
         TodayUsage(state)

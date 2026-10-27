@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Somente a pasta de certificados é exposta pelo FileProvider.
+  O PDF é gerado em cache e compartilhado por URI com permissão temporária;
+  nada do armazenamento do aparelho fica acessível.
+-->
+<paths>
+    <cache-path name="certificados" path="certificados/" />
+</paths>

@@ -25,7 +25,7 @@ data class SessaoLocal(
 class SessionStore(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("sessao", Context.MODE_PRIVATE)
 
-    fun salvar(resposta: SessaoResponse): SessaoLocal? {
+    fun salvar(resposta: SessaoResponse, servidor: String? = null): SessaoLocal? {
         val token = resposta.token ?: return null
         val expiraEm =
             resposta.expiraEm?.let { runCatching { Instant.parse(it) }.getOrNull() }
@@ -46,12 +46,14 @@ class SessionStore(context: Context) {
             .putString("tipo", sessao.tipo.name)
             .putString("token", token)
             .putString("expira", expiraEm.toString())
+            .putString("servidor", servidor?.trim()?.trimEnd('/'))
             .apply()
         return sessao
     }
 
     /** Sessão guardada, ou null se não houver ou o token já tiver passado. */
-    fun atual(): SessaoLocal? {
+    fun atual(servidor: String? = null): SessaoLocal? {
+        if (servidor != null && prefs.getString("servidor", null) != servidor.trim().trimEnd('/')) return null
         val token = prefs.getString("token", null) ?: return null
         val expiraEm = prefs.getString("expira", null)?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val sessao =
@@ -71,7 +73,7 @@ class SessionStore(context: Context) {
         } else sessao
     }
 
-    fun token(): String? = atual()?.token
+    fun token(servidor: String? = null): String? = atual(servidor)?.token
 
     fun limpar() {
         prefs.edit().clear().apply()

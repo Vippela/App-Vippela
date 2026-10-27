@@ -5,6 +5,7 @@ data class CadastroRequest(
     val email: String,
     val senha: String,
     val tipoConta: String,
+    val dataNascimento: String? = null,
 )
 
 data class LoginRequest(val email: String, val senha: String)

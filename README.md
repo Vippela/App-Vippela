@@ -1,5 +1,17 @@
 # Integração de bloqueio por vínculo — 0.5.0
 
+## Versão 0.7.3
+
+Cadastro com data de nascimento e validações alinhadas com a API, isolamento de sessões por servidor/conta, restauração offline, estado de conexão real e sincronização de relatórios com cancelamento. O perfil mostra a versão do APK instalado. Erros de validação identificam o campo; falhas do banco são tratadas como indisponibilidade, sem mostrar detalhes internos.
+
+## Correções de sessão e sincronização
+
+O cadastro por e-mail inclui Data de nascimento, obrigatória no formulário, em `DD/MM/AAAA`. O aplicativo valida o calendário e impede datas futuras; a requisição envia `dataNascimento` em `AAAA-MM-DD` para persistência no backend.
+
+O token de acesso agora pertence ao servidor que o emitiu. Alterar o servidor encerra o acesso local e exige novo login; sessões de versões antigas sem identificação do servidor também exigem novo login. A troca de conta limpa familiares, pedidos, metas, contatos e fotos da sessão anterior. Uma sessão local ainda válida permite reabrir o aplicativo sem rede; respostas 401/403 continuam invalidando o acesso.
+
+As telas de início e família só mostram contato recente quando o aparelho sincronizou nos últimos 20 segundos e informam separadamente o estado da proteção. A coleta dos relatórios acompanha o ciclo da sincronização e seu cancelamento, sem tarefas globais que sobrevivam ao encerramento do fluxo.
+
 O app agora consulta os aplicativos elegíveis do familiar vinculado e envia permissões reais pelo backend. As instruções de servidor, pareamento, acessibilidade, protocolo e limitações estão no README do projeto `backend-Vippela`.
 
 ## Servidor oficial automático — 0.7.2
@@ -7,6 +19,15 @@ O app agora consulta os aplicativos elegíveis do familiar vinculado e envia per
 Novas instalações usam automaticamente `https://vippela-backend.onrender.com/` para cadastro, login, vínculo e sincronização. Não é mais necessário digitar a URL nos celulares. A opção **Alterar servidor** continua disponível para desenvolvimento local ou outro ambiente.
 
 O cliente aguarda até 150 segundos porque o plano gratuito do Render pode suspender o serviço por inatividade. A primeira operação pode demorar cerca de dois minutos; depois que o servidor acorda, as chamadas seguintes são normais.
+
+## Trilha de estudos — MVP offline
+
+O app passou a ter duas trilhas de educação digital em família, **Contas e senhas** e **Golpes e fraudes**: 8 módulos, 24 lições de até 5 minutos, 72 perguntas, narração por TTS, selos e certificado em PDF. O progresso é por conta/perfil, funciona sem internet e fica no aparelho nesta fase.
+
+- Desenho completo, conteúdo e critérios: [`docs/TRILHA-DE-ESTUDOS.md`](docs/TRILHA-DE-ESTUDOS.md)
+- Migração do backend (PostgreSQL/Supabase): [`../backend-Vippela/db/vippela_learning.sql`](../backend-Vippela/db/vippela_learning.sql)
+
+O responsável vê apenas conclusão, selos e agregados; respostas e tentativas do quiz continuam privadas do perfil. A sincronização com o servidor, o armazenamento em Room e as trilhas restantes ficam para as próximas fases.
 
 ## Cadastro e login no servidor — 0.6.0
 
@@ -103,7 +124,7 @@ Para sites, a Vippela reconhece a barra de endereço de Chrome, Brave, Edge, Fir
 
 Atualize também o backend. A tela Aplicativos recebe ícones PNG pequenos do aparelho vinculado. No familiar, permita o acesso às estatísticas em Aplicativos ou Relatórios. Apenas após esse consentimento a coleta registra a duração de uso dos apps monitorados. Não lê conteúdo de telas. O total exclui apps essenciais, pode ter lacunas quando o serviço não está executando e não deve ser confundido com o total do Bem-estar Digital do Android.
 
-Relatórios mostram hoje, últimos 7 dias e últimos 30 dias, com origem e horário de atualização. Os dados ficam em histórico local separado por conta/servidor e são enviados pelo vínculo a cada minuto; no responsável pode levar até dois minutos para refletir. Sem permissão ou sincronização, a interface informa a ausência de dados. A revogação da permissão limpa o histórico local na próxima coleta e o relatório remoto na próxima sincronização bem-sucedida. Ícones continuam disponíveis. Percentuais de segurança e redução fictícios foram retirados desses relatórios. Trilhas, objetivos e alertas educativos ainda têm conteúdos demonstrativos.
+Relatórios mostram hoje, últimos 7 dias e últimos 30 dias, com origem e horário de atualização. Os dados ficam em histórico local separado por conta/servidor e são enviados pelo vínculo a cada minuto; no responsável pode levar até dois minutos para refletir. Sem permissão ou sincronização, a interface informa a ausência de dados. A revogação da permissão limpa o histórico local na próxima coleta e o relatório remoto na próxima sincronização bem-sucedida. Ícones continuam disponíveis. Percentuais de segurança e redução fictícios foram retirados desses relatórios. Objetivos e alertas educativos ainda têm conteúdos demonstrativos; as trilhas de estudo já usam o conteúdo do MVP descrito no início deste documento.
 
 ## Correção dos relatórios — 0.7.1
 

@@ -1,0 +1,811 @@
+{
+  "versao": 1,
+  "trilhas": [
+    {
+      "slug": "contas-e-senhas",
+      "titulo": "Contas e senhas: a chave da sua casa digital",
+      "pilar": "Proteção",
+      "nivel": "Iniciante",
+      "duracaoMin": 40,
+      "publico": ["Responsável", "Adolescente", "Idoso"],
+      "objetivo": "Criar senhas fortes, ativar a verificação em duas etapas e recuperar uma conta invadida sem pânico.",
+      "prerequisitos": [],
+      "icone": "chave",
+      "modulos": [
+        {
+          "id": "t1m1",
+          "titulo": "Por que sua senha vale ouro",
+          "objetivo": "Entender por que contas são roubadas e como uma senha longa protege.",
+          "duracaoMin": 10,
+          "licoes": [
+            {
+              "id": "t1m1l1",
+              "titulo": "Por que contas são roubadas",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Sua conta vale mais do que parece — e o roubo quase sempre começa com uma informação entregue sem perceber.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Sua conta é uma porta",
+                  "texto": "Quando alguém entra na sua conta, não leva só mensagens. Pode pedir dinheiro aos seus contatos, ver fotos, mudar sua senha e até abrir contas usando o seu nome."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Como isso acontece",
+                  "texto": "A maior parte dos roubos começa com informação entregue sem perceber: uma senha repetida, um código ditado no telefone ou um link que imita um site conhecido."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Sua conta vale mais para outra pessoa do que você imagina. Proteger é simples, mas precisa virar hábito."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O que um invasor pode fazer ao entrar na sua conta?",
+                    "alternativas": [
+                      "Só ler mensagens antigas",
+                      "Pedir dinheiro aos seus contatos e mudar sua senha",
+                      "Nada, porque o celular continua com você"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. A conta dá acesso a conversas, contatos, fotos e à recuperação de outros serviços.",
+                    "feedbackErro": "A conta é mais valiosa do que parece: o invasor pode se passar por você e mudar o acesso."
+                  },
+                  {
+                    "enunciado": "Qual atitude costuma dar início a um roubo de conta?",
+                    "alternativas": [
+                      "Repetir a mesma senha em vários sites",
+                      "Usar o celular no wi-fi de casa",
+                      "Instalar o aplicativo do banco"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Quando uma senha vaza em um site, ela abre as outras contas que usam a mesma combinação.",
+                    "feedbackErro": "O problema não é o wi-fi de casa nem o app do banco. É reaproveitar a mesma senha em serviços diferentes."
+                  },
+                  {
+                    "enunciado": "Qual informação nunca deve ser compartilhada por mensagem?",
+                    "alternativas": [
+                      "O nome do seu bairro",
+                      "O código de verificação que chegou por SMS",
+                      "O horário da sua aula"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. O código de verificação é a chave da sua conta naquele momento.",
+                    "feedbackErro": "O código de verificação funciona como uma chave. Quem recebe esse número pode entrar na sua conta."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m1l2",
+              "titulo": "Senha forte sem complicação",
+              "tipo": "CHK",
+              "duracaoSeg": 200,
+              "resumo": "Senha longa e fácil de lembrar protege mais do que uma senha curta cheia de símbolos.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Tamanho importa mais que símbolos",
+                  "texto": "Uma senha longa e fácil de lembrar protege mais que uma curta cheia de caracteres especiais. Três ou quatro palavras juntas já formam uma boa senha."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "O que evitar",
+                  "texto": "Não use nome de filho, data de nascimento, time ou sequência como 123456. Essas são as primeiras tentativas de quem tenta entrar."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Monte sua senha em 3 passos",
+                  "itens": [
+                    "Escolha 3 palavras que só você associa",
+                    "Junte com um número que não seja uma data",
+                    "Guarde no gerenciador de senhas do celular ou em um lugar seguro"
+                  ]
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual destas senhas é mais forte?",
+                    "alternativas": ["Maria2010", "cafe-azul-janela-47", "12345678"],
+                    "correta": 1,
+                    "feedbackOk": "Boa. Ela é longa, imprevisível e não usa dados pessoais.",
+                    "feedbackErro": "Nome e data de nascimento são fáceis de descobrir. Sequências também são as primeiras tentativas."
+                  },
+                  {
+                    "enunciado": "Por que evitar a data de nascimento na senha?",
+                    "alternativas": [
+                      "Porque é difícil de digitar",
+                      "Porque aparece em redes sociais e é fácil de descobrir",
+                      "Porque o banco não aceita"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso mesmo. Muita gente publica a própria data e nem percebe.",
+                    "feedbackErro": "O problema não é digitar: é que a data circula em perfis, documentos e mensagens de parabéns."
+                  },
+                  {
+                    "enunciado": "Onde guardar as senhas com mais segurança?",
+                    "alternativas": [
+                      "Em um papel colado atrás do celular",
+                      "No gerenciador de senhas do próprio aparelho",
+                      "Em uma conversa salva no WhatsApp"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. O gerenciador guarda tudo protegido e ainda ajuda a criar senhas diferentes.",
+                    "feedbackErro": "Papel colado e conversa salva ficam ao alcance de quem pega o celular. O gerenciador do aparelho é mais seguro."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m1l3",
+              "titulo": "A mesma senha em todo lugar",
+              "tipo": "SIM",
+              "duracaoSeg": 210,
+              "resumo": "Um vazamento em um site pequeno pode abrir sua conta de e-mail. Veja como agir.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Uma chave para todas as portas",
+                  "texto": "Quando você usa a mesma senha no e-mail, no banco e na rede social, um vazamento em qualquer um deles abre todos os outros."
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "Você recebe um aviso de que um site de compras teve dados vazados e sua senha antiga estava lá. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Não faço nada, era só um site de compras",
+                      "resultado": "O problema: a mesma senha abria seu e-mail. Quem pegou os dados pode tentar entrar em tudo.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Troco a senha do site e também das contas que usavam a mesma",
+                      "resultado": "Boa. Comece pelas contas mais importantes — e-mail e banco — para fechar a porta antes que alguém entre.",
+                      "correta": true
+                    },
+                    {
+                      "texto": "Apago o aplicativo do site",
+                      "resultado": "Apagar o app não muda a senha. Os dados vazados continuam valendo.",
+                      "correta": false
+                    }
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Senhas diferentes em cada conta transformam um vazamento em um problema pequeno."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Por que repetir a mesma senha é perigoso?",
+                    "alternativas": [
+                      "Porque fica difícil decorar",
+                      "Porque um único vazamento abre várias contas",
+                      "Porque o celular fica mais lento"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. A senha repetida funciona como uma chave que abre todas as portas.",
+                    "feedbackErro": "O risco não é decorar: é que uma única senha vazada serve para entrar em vários serviços."
+                  },
+                  {
+                    "enunciado": "Um site avisa que seus dados vazaram. Qual conta você troca primeiro?",
+                    "alternativas": [
+                      "A do site de compras, apenas",
+                      "A do e-mail, porque ela recupera as outras",
+                      "Nenhuma, se você não usa mais o site"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. O e-mail costuma ser a chave para recuperar todas as outras contas.",
+                    "feedbackErro": "Trocar só a do site deixa as outras expostas. O e-mail vem primeiro porque recupera as demais."
+                  },
+                  {
+                    "enunciado": "O que ajuda a lembrar de muitas senhas diferentes?",
+                    "alternativas": [
+                      "Anotar todas no bloco de notas sem proteção",
+                      "Usar um gerenciador de senhas",
+                      "Usar a mesma senha com um número no final"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. O gerenciador cria e guarda senhas únicas para você.",
+                    "feedbackErro": "Bloco de notas sem proteção e 'a mesma senha com número' continuam frágeis. O gerenciador resolve isso."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t1m2",
+          "titulo": "Verificação em duas etapas",
+          "objetivo": "Ativar a segunda camada de proteção e entender quando o código é pedido.",
+          "duracaoMin": 12,
+          "licoes": [
+            {
+              "id": "t1m2l1",
+              "titulo": "O que é verificação em duas etapas",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Além da senha, uma segunda prova de que é você. É a proteção mais eficaz contra invasão.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Duas fechaduras na mesma porta",
+                  "texto": "A verificação em duas etapas pede algo além da senha: um código no seu celular ou uma confirmação no aplicativo. Mesmo que alguém descubra a senha, ainda falta essa segunda prova."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Onde ativar primeiro",
+                  "texto": "Comece pelo e-mail, depois pelo banco e pelas redes sociais. São as contas que recuperam ou expõem todas as outras."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Senha protege a porta. A verificação em duas etapas protege a casa inteira."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O que a verificação em duas etapas acrescenta?",
+                    "alternativas": [
+                      "Uma segunda senha mais difícil",
+                      "Uma segunda prova de que é você",
+                      "Um aplicativo de banco"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Além da senha, o serviço pede um código ou uma confirmação.",
+                    "feedbackErro": "Não é uma segunda senha. É uma prova extra — um código ou confirmação no seu aparelho."
+                  },
+                  {
+                    "enunciado": "Em qual conta vale a pena ativar primeiro?",
+                    "alternativas": ["No e-mail", "No aplicativo de transporte", "No jogo do celular"],
+                    "correta": 0,
+                    "feedbackOk": "Certo. O e-mail recupera e conecta várias outras contas.",
+                    "feedbackErro": "O e-mail vem primeiro porque é por ele que quase todas as outras contas são recuperadas."
+                  },
+                  {
+                    "enunciado": "Se alguém descobrir sua senha, a verificação em duas etapas:",
+                    "alternativas": [
+                      "Não serve para nada",
+                      "Ainda impede a entrada sem o segundo código",
+                      "Deixa a conta mais lenta"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Sem a segunda prova, a senha sozinha não basta.",
+                    "feedbackErro": "Ela é justamente a proteção que segura o invasor quando a senha já vazou."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m2l2",
+              "titulo": "SMS ou aplicativo?",
+              "tipo": "CHK",
+              "duracaoSeg": 200,
+              "resumo": "Os dois ajudam. O aplicativo autenticador é mais resistente a golpes de troca de chip.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "As duas opções mais comuns",
+                  "texto": "O código por SMS chega em qualquer celular e é melhor que não ter nada. O aplicativo autenticador gera códigos sem depender da operadora e é mais seguro."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Quando o SMS falha",
+                  "texto": "Golpistas podem convencer a operadora a transferir seu número para outro chip. Com o aplicativo autenticador, esse golpe não dá acesso à conta."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Ativando com calma",
+                  "itens": [
+                    "Abra as configurações de segurança da conta",
+                    "Escolha verificação em duas etapas",
+                    "Prefira o aplicativo autenticador quando existir",
+                    "Guarde os códigos de recuperação fora do celular"
+                  ]
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual opção é mais resistente a golpe de troca de chip?",
+                    "alternativas": ["Código por SMS", "Aplicativo autenticador", "Pergunta secreta"],
+                    "correta": 1,
+                    "feedbackOk": "Isso. O aplicativo não depende do seu número de telefone.",
+                    "feedbackErro": "O SMS depende da operadora. O aplicativo autenticador gera o código no próprio aparelho."
+                  },
+                  {
+                    "enunciado": "Onde guardar os códigos de recuperação?",
+                    "alternativas": [
+                      "Em uma foto na galeria",
+                      "Fora do celular, em local seguro",
+                      "Em uma mensagem para você mesmo"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Se você perder o celular, os códigos precisam estar acessíveis de outro jeito.",
+                    "feedbackErro": "Foto e mensagem ficam dentro do celular — justamente o aparelho que pode ser perdido."
+                  },
+                  {
+                    "enunciado": "Usar só SMS é melhor do que não usar nada?",
+                    "alternativas": [
+                      "Sim, já é uma proteção extra",
+                      "Não, atrapalha o acesso",
+                      "Tanto faz"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. SMS não é perfeito, mas é muito melhor que só a senha.",
+                    "feedbackErro": "Alguma segunda etapa sempre protege mais do que a senha sozinha."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m2l3",
+              "titulo": "Quando o código chega sem você pedir",
+              "tipo": "SIM",
+              "duracaoSeg": 210,
+              "resumo": "Um código inesperado significa que alguém tem sua senha e está tentando entrar.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "O aviso que ninguém deve ignorar",
+                  "texto": "Se chega um código de verificação que você não pediu, alguém está tentando entrar na sua conta. Não é engano: é um aviso."
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "Chega um SMS: 'Seu código é 481203'. Em seguida, uma pessoa liga dizendo ser do suporte e pede esse número. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Informo o código para ajudar no atendimento",
+                      "resultado": "Com o código, a pessoa entra na sua conta. O suporte de verdade não pede esse número.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Não informo, desligo e troco minha senha",
+                      "resultado": "Boa. O código era a última barreira. Trocar a senha fecha a porta de vez.",
+                      "correta": true
+                    },
+                    {
+                      "texto": "Informo só os três primeiros números",
+                      "resultado": "Metade do código não serve para você, mas ajuda quem está tentando adivinhar.",
+                      "correta": false
+                    }
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Código que você não pediu é sinal de alerta. Nunca compartilhe — nem com quem diz ser do banco."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Você recebe um código de verificação sem ter pedido. O que isso significa?",
+                    "alternativas": [
+                      "O sistema está com defeito",
+                      "Alguém está tentando entrar na sua conta",
+                      "É uma promoção"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Alguém já tem sua senha e parou na segunda etapa.",
+                    "feedbackErro": "Não é defeito nem promoção: é uma tentativa de acesso em andamento."
+                  },
+                  {
+                    "enunciado": "Alguém liga pedindo o código que acabou de chegar. Você deve:",
+                    "alternativas": [
+                      "Passar o código, se a pessoa parecer educada",
+                      "Não passar e trocar a senha",
+                      "Passar apenas parte do código"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Nenhum serviço sério pede o código por telefone.",
+                    "feedbackErro": "Educação não é garantia de confiança. Quem pede o código está tentando entrar na sua conta."
+                  },
+                  {
+                    "enunciado": "Depois de recusar passar o código, qual é o próximo passo?",
+                    "alternativas": [
+                      "Trocar a senha e avisar alguém de confiança",
+                      "Apagar o SMS",
+                      "Ligar de volta para o mesmo número"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Trocar a senha impede novas tentativas.",
+                    "feedbackErro": "Apagar o SMS esconde a prova. Ligar de volta mantém contato com o golpista."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t1m3",
+          "titulo": "Conta invadida: e agora?",
+          "objetivo": "Reconhecer os sinais e agir nos primeiros minutos, sem vergonha.",
+          "duracaoMin": 12,
+          "licoes": [
+            {
+              "id": "t1m3l1",
+              "titulo": "Sinais de invasão",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Mensagens estranhas, senha que não funciona e acessos desconhecidos são pistas.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Pistas que aparecem",
+                  "texto": "Amigos recebem mensagens que você não enviou. A senha para de funcionar. Aparece um aviso de acesso de um lugar que você nunca visitou. O e-mail começa a receber confirmações de cadastro que você não fez."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Não espere ter certeza",
+                  "texto": "Na dúvida, troque a senha e ative a verificação em duas etapas. É melhor trocar sem necessidade do que descobrir tarde demais."
+                },
+                {
+                  "tipo": "familia",
+                  "texto": "Combine em casa: se alguém desconfiar de invasão, avisa na hora. Ninguém precisa resolver sozinho."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual é um sinal comum de conta invadida?",
+                    "alternativas": [
+                      "Amigos recebem mensagens que você não enviou",
+                      "O aplicativo atualiza sozinho",
+                      "O celular fica mais rápido"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. O invasor usa sua conta para falar com seus contatos.",
+                    "feedbackErro": "Atualização e velocidade não indicam invasão. Mensagens enviadas por outra pessoa, sim."
+                  },
+                  {
+                    "enunciado": "A senha parou de funcionar de repente. O que fazer?",
+                    "alternativas": [
+                      "Esperar um dia para ver se volta",
+                      "Usar a recuperação de conta e avisar alguém de confiança",
+                      "Criar uma conta nova e esquecer a antiga"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. A recuperação é o caminho oficial para retomar o acesso.",
+                    "feedbackErro": "Esperar dá tempo ao invasor. Criar outra conta não protege seus contatos e suas fotos."
+                  },
+                  {
+                    "enunciado": "Por que avisar uma pessoa de confiança ajuda?",
+                    "alternativas": [
+                      "Porque ela pode resolver tudo por você",
+                      "Porque vocês agem juntos e se protegem de novos golpes",
+                      "Porque o banco exige"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Duas cabeças percebem mais rápido o que está acontecendo.",
+                    "feedbackErro": "Ninguém resolve tudo sozinho. A companhia ajuda a agir com calma e a evitar novos erros."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m3l2",
+              "titulo": "Recuperar o acesso",
+              "tipo": "CHK",
+              "duracaoSeg": 220,
+              "resumo": "Um passo a passo para retomar a conta e fechar as portas que ficaram abertas.",
+              "blocos": [
+                {
+                  "tipo": "checklist",
+                  "titulo": "Nos primeiros 10 minutos",
+                  "itens": [
+                    "Use 'esqueci minha senha' no aplicativo ou site oficial",
+                    "Crie uma senha nova, diferente das outras",
+                    "Ative a verificação em duas etapas",
+                    "Veja os dispositivos conectados e encerre os que não reconhece",
+                    "Confira e-mail e telefone de recuperação"
+                  ]
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Se não conseguir entrar",
+                  "texto": "Procure a central de ajuda oficial do serviço. Não pague a ninguém que prometa 'recuperar conta' por mensagem: esse é um golpe comum depois de uma invasão."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Recuperar a conta é o começo. Encerrar os acessos desconhecidos é o que impede a volta."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual é o primeiro passo ao recuperar uma conta invadida?",
+                    "alternativas": [
+                      "Criar uma senha nova pelo canal oficial",
+                      "Pedir ajuda em um grupo de mensagens",
+                      "Apagar o aplicativo"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. O canal oficial evita cair em um segundo golpe.",
+                    "feedbackErro": "Grupos e conhecidos podem não saber o procedimento. O caminho seguro é o oficial."
+                  },
+                  {
+                    "enunciado": "Onde encerrar acessos que você não reconhece?",
+                    "alternativas": [
+                      "Nas configurações de segurança da conta",
+                      "No histórico do navegador",
+                      "Na galeria de fotos"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Certo. A lista de dispositivos conectados mostra quem está dentro.",
+                    "feedbackErro": "O navegador e a galeria não controlam sessões. Isso fica nas configurações de segurança."
+                  },
+                  {
+                    "enunciado": "Alguém oferece 'recuperar sua conta' cobrando por mensagem. Você:",
+                    "alternativas": [
+                      "Aceita, se o preço for baixo",
+                      "Recusa e procura o suporte oficial",
+                      "Envia seus documentos para agilizar"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Depois de uma invasão, essa oferta costuma ser um novo golpe.",
+                    "feedbackErro": "Quem cobra por mensagem não é suporte. Documentos e pagamento só aumentam o prejuízo."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m3l3",
+              "titulo": "Avisar e limpar o que ficou",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Depois de retomar a conta, é hora de avisar contatos e revisar o que o invasor deixou.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Avise sem vergonha",
+                  "texto": "Se o invasor pediu dinheiro aos seus contatos, avise as pessoas próximas. Um recado simples resolve: 'Minha conta foi invadida. Não sou eu pedindo dinheiro.'"
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Revise o que ficou",
+                  "texto": "Confira mensagens enviadas, contatos adicionados, regras de encaminhamento no e-mail e formas de pagamento salvas. O invasor pode ter deixado uma porta aberta."
+                },
+                {
+                  "tipo": "familia",
+                  "texto": "Atividade em família: conversem sobre uma conta que já deu problema. O que vocês fariam diferente hoje?"
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O invasor pediu dinheiro aos seus contatos. O que fazer?",
+                    "alternativas": [
+                      "Não falar nada para não passar vergonha",
+                      "Avisar os contatos de que a conta foi invadida",
+                      "Apagar todos os contatos"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. O aviso protege quem poderia cair no pedido.",
+                    "feedbackErro": "O silêncio deixa seus contatos expostos e ainda pode parecer que o pedido era seu."
+                  },
+                  {
+                    "enunciado": "O que revisar depois de recuperar a conta?",
+                    "alternativas": [
+                      "Só a foto de perfil",
+                      "Mensagens enviadas, dispositivos e formas de pagamento",
+                      "Apenas a senha"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. O invasor pode deixar regras e acessos escondidos.",
+                    "feedbackErro": "Trocar a senha é essencial, mas não basta: revise sessões, encaminhamentos e pagamentos."
+                  },
+                  {
+                    "enunciado": "Pedir ajuda depois de uma invasão é:",
+                    "alternativas": [
+                      "Sinal de fraqueza",
+                      "Uma atitude de proteção",
+                      "Desnecessário se você já trocou a senha"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Agir junto evita novos erros e protege mais gente.",
+                    "feedbackErro": "Pedir ajuda é proteção. Golpes se aproveitam de quem está sozinho e com pressa."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t1m4",
+          "titulo": "Senhas na família",
+          "objetivo": "Combinar quem sabe o quê e revisar contas juntos, com respeito à privacidade.",
+          "duracaoMin": 10,
+          "licoes": [
+            {
+              "id": "t1m4l1",
+              "titulo": "Quem sabe o quê",
+              "tipo": "TXT",
+              "duracaoSeg": 170,
+              "resumo": "Confiança não é saber todas as senhas. É saber a quem recorrer.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Privacidade também é proteção",
+                  "texto": "Cada pessoa deve ter a própria senha. Compartilhar tudo pode expor conversas e criar confusão quando alguém precisa trocar o acesso."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "O que combinar",
+                  "texto": "Para crianças, o responsável guarda os códigos de recuperação. Para adolescentes, combine um adulto de confiança para emergências. Para idosos, deixe claro quem pode ajudar sem decidir pela pessoa."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "A pergunta certa não é 'quem sabe a senha?', e sim 'quem ajuda se algo acontecer?'."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual combinado protege melhor a família?",
+                    "alternativas": [
+                      "Todos usam a mesma senha",
+                      "Cada um tem a própria senha e um adulto de confiança para emergências",
+                      "Ninguém anota nada em lugar nenhum"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Privacidade com um caminho claro de ajuda.",
+                    "feedbackErro": "Senha única expõe todos. Não ter nenhum plano de ajuda também deixa a família desamparada."
+                  },
+                  {
+                    "enunciado": "Para uma criança, quem guarda os códigos de recuperação?",
+                    "alternativas": ["O responsável", "Um colega da escola", "Ninguém"],
+                    "correta": 0,
+                    "feedbackOk": "Certo. A criança usa a conta; o responsável guarda o caminho de volta.",
+                    "feedbackErro": "Colegas não devem ter acesso. O responsável é quem responde pela conta da criança."
+                  },
+                  {
+                    "enunciado": "Ajudar um idoso com a conta significa:",
+                    "alternativas": [
+                      "Decidir tudo por ele",
+                      "Apoiar sem tirar a autonomia",
+                      "Trocar a senha sem avisar"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Ajuda de verdade mantém a pessoa no controle.",
+                    "feedbackErro": "Decidir por ele ou trocar a senha escondido quebra a confiança e a autonomia."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m4l2",
+              "titulo": "Cofre de senhas: quando faz sentido",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Um gerenciador de senhas resolve o problema de decorar — com cuidados simples.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Como funciona",
+                  "texto": "O gerenciador guarda suas senhas em um cofre protegido por uma senha principal. Ele preenche os campos e avisa quando uma senha é fraca ou repetida."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Cuidados",
+                  "texto": "Use uma senha principal longa e memorize. Ative a verificação em duas etapas no cofre. E nunca instale gerenciador desconhecido: prefira o do sistema ou um aplicativo consagrado."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Vale a pena quando...",
+                  "itens": [
+                    "Você tem mais de 5 contas",
+                    "Esquece senhas com frequência",
+                    "Quer parar de repetir a mesma senha",
+                    "Precisa compartilhar uma senha específica com alguém de confiança"
+                  ]
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O que protege o cofre de senhas?",
+                    "alternativas": [
+                      "A senha principal",
+                      "O nome do aplicativo",
+                      "O wi-fi de casa"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. A senha principal precisa ser longa e só sua.",
+                    "feedbackErro": "O cofre é protegido pela senha principal — e ela merece cuidado especial."
+                  },
+                  {
+                    "enunciado": "Qual é um bom sinal em um gerenciador de senhas?",
+                    "alternativas": [
+                      "Avisar quando uma senha está repetida",
+                      "Pedir sua senha do banco por mensagem",
+                      "Ser desconhecido e gratuito sem informação"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Certo. O alerta de repetição ajuda a manter contas separadas.",
+                    "feedbackErro": "Pedir senha por mensagem é golpe. Aplicativo sem procedência é risco."
+                  },
+                  {
+                    "enunciado": "Compartilhar uma senha com alguém de confiança pelo cofre:",
+                    "alternativas": [
+                      "É sempre proibido",
+                      "Pode ser útil, com escolha de quem e por quanto tempo",
+                      "Deve ser feito por mensagem"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Compartilhar com prazo e escopo é diferente de entregar tudo.",
+                    "feedbackErro": "Não é tudo ou nada. O cofre permite compartilhar só o necessário, com controle."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t1m4l3",
+              "titulo": "Revisar contas juntos",
+              "tipo": "FAM",
+              "duracaoSeg": 240,
+              "resumo": "Uma atividade de 20 minutos para a família fechar portas abertas.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Escolham um momento tranquilo",
+                  "texto": "Sentem juntos, sem pressa. A ideia não é auditar ninguém, e sim aprender fazendo. Cada pessoa revisa a própria conta com apoio."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Roteiro da atividade",
+                  "itens": [
+                    "Cada um escolhe três contas importantes",
+                    "Confere se a senha é diferente nas três",
+                    "Ativa a verificação em duas etapas na mais importante",
+                    "Anota em um papel quem pode ajudar em uma emergência",
+                    "Combinem uma data para revisar de novo"
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Segurança digital se aprende fazendo junto — não vigiando o celular do outro."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual é o clima certo para essa atividade?",
+                    "alternativas": [
+                      "Fiscalizar as contas de todos",
+                      "Aprender junto, cada um na própria conta",
+                      "Corrigir quem errou"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Aprender junto preserva a confiança.",
+                    "feedbackErro": "Fiscalizar e corrigir afastam. A proposta é prática compartilhada, sem julgamento."
+                  },
+                  {
+                    "enunciado": "Quantas contas revisar no primeiro encontro?",
+                    "alternativas": ["Todas de uma vez", "Três contas importantes", "Nenhuma, só conversar"],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Começar pequeno aumenta a chance de virar hábito.",
+                    "feedbackErro": "Todas de uma vez cansa. Só conversar não muda nada. Três contas é um bom começo."
+                  },
+                  {
+                    "enunciado": "O que deixar combinado no final?",
+                    "alternativas": [
+                      "Uma data para revisar de novo",
+                      "Que ninguém fale mais do assunto",
+                      "As senhas de todos em um papel"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Revisar de tempos em tempos mantém a proteção viva.",
+                    "feedbackErro": "Guardar senhas de todos em papel expõe a família. O combinado útil é uma nova revisão."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

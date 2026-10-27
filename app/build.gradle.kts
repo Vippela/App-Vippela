@@ -15,8 +15,8 @@ android {
         applicationId = "br.com.vippela"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "0.7.2"
+        versionCode = 9
+        versionName = "0.7.3"
         buildConfigField("boolean", "VIPPELA_GOOGLE_ATIVO", googleAtivo.toString())
         buildConfigField(
             "String",

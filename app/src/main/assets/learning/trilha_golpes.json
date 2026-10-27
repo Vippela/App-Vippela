@@ -1,0 +1,858 @@
+{
+  "versao": 1,
+  "trilhas": [
+    {
+      "slug": "golpes-e-fraudes",
+      "titulo": "Golpes e fraudes: reconhecer para não cair",
+      "pilar": "Proteção",
+      "nivel": "Iniciante",
+      "duracaoMin": 45,
+      "publico": ["Responsável", "Adolescente", "Idoso"],
+      "objetivo": "Identificar os sinais de um golpe e saber o que fazer nos primeiros minutos depois de um clique errado.",
+      "prerequisitos": ["contas-e-senhas"],
+      "icone": "golpe",
+      "modulos": [
+        {
+          "id": "t2m1",
+          "titulo": "O roteiro do golpe",
+          "objetivo": "Reconhecer pressa, medo e prêmio como ferramentas de quem quer enganar.",
+          "duracaoMin": 12,
+          "licoes": [
+            {
+              "id": "t2m1l1",
+              "titulo": "Pressa, medo e prêmio",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Todo golpe precisa que você aja sem pensar. Reconhecer a pressa já é metade da proteção.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "O mesmo roteiro, roupas diferentes",
+                  "texto": "Um prêmio que você não pediu. Uma conta que vai ser bloqueada. Um parente pedindo dinheiro às pressas. O texto muda, mas o objetivo é o mesmo: fazer você agir sem conferir."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "O que o golpe quer de você",
+                  "texto": "Quer que você clique, instale, informe um código ou faça uma transferência. Quase sempre com um prazo curto — porque tempo é o que permite pensar."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Quem tem pressa é o golpe. Você pode parar."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual combinação é típica de um golpe?",
+                    "alternativas": [
+                      "Calma, detalhes e um canal oficial",
+                      "Pressa, medo e um pedido estranho",
+                      "Uma promoção que você mesma procurou"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Pressa e medo tiram o tempo de conferir.",
+                    "feedbackErro": "Canal oficial e calma são sinais de segurança. O golpe depende da urgência."
+                  },
+                  {
+                    "enunciado": "Por que o golpista cria urgência?",
+                    "alternativas": [
+                      "Para você não ter tempo de verificar",
+                      "Para o atendimento ser mais rápido",
+                      "Porque o sistema exige"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. A urgência é uma ferramenta para impedir a checagem.",
+                    "feedbackErro": "Nenhum serviço sério exige decisão em segundos. A pressa serve para te apressar."
+                  },
+                  {
+                    "enunciado": "Qual é a melhor primeira reação?",
+                    "alternativas": [
+                      "Responder rápido para resolver",
+                      "Parar, respirar e conferir por outro canal",
+                      "Encaminhar para os amigos"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Parar devolve o controle para você.",
+                    "feedbackErro": "Responder rápido é o que o golpe espera. Conferir por outro canal quebra o roteiro."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m1l2",
+              "titulo": "Falso suporte técnico",
+              "tipo": "SIM",
+              "duracaoSeg": 240,
+              "resumo": "Alguém liga dizendo ser do banco e pede para instalar um aplicativo. Veja o que está em jogo.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "A cena",
+                  "texto": "“Boa tarde, aqui é da central de segurança do seu banco. Detectamos um acesso suspeito. Para bloquear agora, instale este aplicativo de acesso remoto e me informe o código que vai chegar por SMS.”"
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "Três sinais aparecem juntos: pressa, autoridade e um pedido estranho. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Instalo o aplicativo para bloquear a conta",
+                      "resultado": "A pessoa agora vê sua tela. Golpes assim costumam terminar em transferência. Você pode voltar e escolher de novo.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Informo o código do SMS para confirmar minha identidade",
+                      "resultado": "Com esse código, ela entra na sua conta. O banco nunca pede esse número por telefone.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Desligo e ligo para o número que está no verso do cartão",
+                      "resultado": "O banco confirma: não havia acesso suspeito. Você acabou de evitar um prejuízo.",
+                      "correta": true
+                    }
+                  ]
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Faça agora",
+                  "itens": [
+                    "Desligue. Não é falta de educação: é proteção.",
+                    "Não instale nada e não informe código.",
+                    "Ligue para o banco no número do cartão.",
+                    "Conte para alguém de confiança o que aconteceu."
+                  ]
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Alguém diz ser do banco e pede para instalar um app de acesso remoto. O que fazer?",
+                    "alternativas": [
+                      "Instalar rápido para bloquear a conta",
+                      "Desligar e ligar para o número do cartão",
+                      "Pedir para ligar mais tarde"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Você mantém o controle e fala com o canal oficial.",
+                    "feedbackErro": "Instalar dá acesso à sua tela. Pedir para ligar depois mantém o contato com quem te ligou."
+                  },
+                  {
+                    "enunciado": "Qual informação o banco nunca pede por telefone?",
+                    "alternativas": [
+                      "Seu nome completo",
+                      "Sua senha ou o código de verificação",
+                      "O número do seu cartão"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Senha e código são pessoais e não se compartilham.",
+                    "feedbackErro": "O nome o banco já tem. Senha e código são a chave da conta — nunca se entregam."
+                  },
+                  {
+                    "enunciado": "Você já instalou o app antes de desconfiar. Qual é o primeiro passo?",
+                    "alternativas": [
+                      "Esperar para ver se acontece algo",
+                      "Desconectar da internet, encerrar o acesso e chamar alguém de confiança",
+                      "Apagar a conversa"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Interromper o acesso vem primeiro; depois, banco e registro.",
+                    "feedbackErro": "Esperar dá tempo ao golpe. Apagar a conversa apaga sua prova."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m1l3",
+              "titulo": "Verificar antes de agir",
+              "tipo": "CHK",
+              "duracaoSeg": 190,
+              "resumo": "Uma checagem de 30 segundos evita a maior parte dos prejuízos.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Três perguntas que salvam",
+                  "texto": "Quem está falando comigo? Por qual canal essa pessoa me procurou? Ela está pedindo algo que eu não pedi? Se alguma resposta soar estranha, pare."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Checagem rápida",
+                  "itens": [
+                    "Não clique no link: abra o aplicativo oficial",
+                    "Confira o remetente com calma, não só o nome exibido",
+                    "Ligue para a pessoa ou empresa por um número que você conhece",
+                    "Converse com alguém antes de transferir qualquer valor"
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Verificar não é desconfiar de todos. É cuidar do seu dinheiro e das suas informações."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Recebeu um link de cobrança. Qual é a atitude segura?",
+                    "alternativas": [
+                      "Clicar e conferir o valor",
+                      "Abrir o aplicativo oficial e verificar por lá",
+                      "Pagar pelo link para não perder o prazo"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. O aplicativo oficial tira o link suspeito do caminho.",
+                    "feedbackErro": "Clicar já pode expor seus dados. O caminho seguro é o app ou site que você conhece."
+                  },
+                  {
+                    "enunciado": "O nome exibido na mensagem é da sua mãe. Isso garante que é ela?",
+                    "alternativas": [
+                      "Sim, o nome aparece na tela",
+                      "Não, o número ou a conta podem ter sido clonados",
+                      "Sim, se a foto também aparecer"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Nome e foto podem ser copiados. Confirme por ligação ou pessoalmente.",
+                    "feedbackErro": "Nome e foto são fáceis de copiar. Confirme por outro canal antes de agir."
+                  },
+                  {
+                    "enunciado": "Antes de transferir dinheiro para alguém, o melhor é:",
+                    "alternativas": [
+                      "Fazer rápido para garantir o preço",
+                      "Falar com a pessoa por voz e conferir os dados",
+                      "Pedir o comprovante por mensagem"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. A voz e a checagem dos dados quebram a maior parte dos golpes.",
+                    "feedbackErro": "Comprovante também é fácil de falsificar. Confirme por voz e com alguém de confiança."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t2m2",
+          "titulo": "Golpes que chegam por mensagem",
+          "objetivo": "Reconhecer phishing, links encurtados e falsos parentes.",
+          "duracaoMin": 12,
+          "licoes": [
+            {
+              "id": "t2m2l1",
+              "titulo": "Phishing por SMS e e-mail",
+              "tipo": "TXT",
+              "duracaoSeg": 180,
+              "resumo": "Mensagens que imitam empresas conhecidas tentam pescar seus dados.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "A isca",
+                  "texto": "“Sua encomenda está retida.” “Sua conta será bloqueada.” “Você ganhou um benefício.” O texto imita uma empresa real e leva a uma página parecida com a oficial."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Como reconhecer",
+                  "texto": "Erros de português, remetente estranho, saudação genérica e link diferente do oficial são pistas. Mas o sinal mais confiável é o pedido: senha, código, dados do cartão."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Empresa séria não pede senha por mensagem. Quem pede, quer entrar."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O que caracteriza phishing?",
+                    "alternativas": [
+                      "Uma mensagem que imita uma empresa para obter seus dados",
+                      "Um vírus que apaga o celular",
+                      "Uma ligação de cobrança legítima"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. O phishing 'pesca' informações se passando por alguém confiável.",
+                    "feedbackErro": "Phishing não apaga nada: ele convence você a entregar dados."
+                  },
+                  {
+                    "enunciado": "Qual pedido é o sinal mais claro de golpe?",
+                    "alternativas": [
+                      "Um aviso de entrega",
+                      "Um pedido de senha ou código",
+                      "Uma promoção de loja"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Senha e código nunca se pedem por mensagem.",
+                    "feedbackErro": "Avisos e promoções existem. O pedido de senha ou código é o que não se admite."
+                  },
+                  {
+                    "enunciado": "O que fazer com uma mensagem suspeita?",
+                    "alternativas": [
+                      "Clicar para ver se é verdade",
+                      "Não clicar, abrir o app oficial e, se quiser, denunciar",
+                      "Responder pedindo mais informações"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Você verifica sem alimentar o golpe.",
+                    "feedbackErro": "Clicar ou responder confirma que seu número está ativo e expõe você."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m2l2",
+              "titulo": "Link encurtado",
+              "tipo": "SIM",
+              "duracaoSeg": 210,
+              "resumo": "Um endereço curto esconde o destino real. Aprenda a conferir antes de tocar.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "O que o encurtador esconde",
+                  "texto": "Links curtos são úteis, mas não mostram para onde levam. Um endereço de 10 letras pode abrir uma página falsa que imita seu banco."
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "Você recebe: “Regularize seu cadastro: bit.ly/3xK9”. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Clico para ver do que se trata",
+                      "resultado": "A página imita o site do banco e pede seus dados. Só o clique já pode instalar algo.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Não clico e abro o aplicativo oficial do serviço",
+                      "resultado": "No app oficial não há pendência. O link era falso.",
+                      "correta": true
+                    },
+                    {
+                      "texto": "Mando para um amigo testar primeiro",
+                      "resultado": "Você transfere o risco para outra pessoa. A dúvida continua.",
+                      "correta": false
+                    }
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Se você não sabe para onde o link leva, não é você quem decide: é quem enviou."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Por que links encurtados exigem cuidado?",
+                    "alternativas": [
+                      "Porque são mais lentos",
+                      "Porque escondem o endereço de destino",
+                      "Porque gastam mais dados"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Sem ver o destino, você não sabe com quem está falando.",
+                    "feedbackErro": "O problema não é velocidade nem dados: é não conseguir ver o destino."
+                  },
+                  {
+                    "enunciado": "Qual é a alternativa mais segura a clicar no link?",
+                    "alternativas": [
+                      "Abrir o aplicativo ou site oficial digitando o endereço",
+                      "Copiar o link para o bloco de notas",
+                      "Abrir em outra aba"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. Você chega ao serviço sem passar pelo link suspeito.",
+                    "feedbackErro": "Copiar ou abrir em outra aba não revela o destino. O caminho oficial resolve."
+                  },
+                  {
+                    "enunciado": "Enviar o link para outra pessoa testar é:",
+                    "alternativas": [
+                      "Uma boa forma de descobrir",
+                      "Transferir o risco para alguém",
+                      "Obrigatório antes de clicar"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Você não descobre nada e ainda expõe quem recebe.",
+                    "feedbackErro": "Quem testa corre o mesmo risco. Não repasse links suspeitos."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m2l3",
+              "titulo": "Falso parente no WhatsApp",
+              "tipo": "SIM",
+              "duracaoSeg": 220,
+              "resumo": "Número novo, foto conhecida e um pedido de dinheiro. O clássico golpe do falso familiar.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "A mensagem",
+                  "texto": "“Oi, mãe, troquei de número. Preciso pagar uma conta hoje e meu app não está funcionando. Pode fazer um PIX para mim?”"
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "A foto é do seu filho. O número é novo. O pedido é urgente. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Faço o PIX, é meu filho pedindo",
+                      "resultado": "O dinheiro vai para um desconhecido. Foto e nome são copiados com facilidade.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Ligo para o número antigo do meu filho e confiro",
+                      "resultado": "Seu filho atende e diz que não trocou de número. Golpe evitado.",
+                      "correta": true
+                    },
+                    {
+                      "texto": "Peço uma foto do documento para confirmar",
+                      "resultado": "Documentos também são falsificados ou roubados. A conferência por voz é mais segura.",
+                      "correta": false
+                    }
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Número novo + urgência + dinheiro = confirme por voz antes de qualquer transferência."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Como confirmar que é realmente seu parente?",
+                    "alternativas": [
+                      "Pela foto do perfil",
+                      "Ligando para o número antigo ou falando por voz",
+                      "Pelo jeito de escrever"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. A voz e o número conhecido são mais difíceis de falsificar.",
+                    "feedbackErro": "Foto e escrita são copiadas com facilidade. Confirme por voz, em um número que você já conhece."
+                  },
+                  {
+                    "enunciado": "O pedido vem com muita urgência. Isso deve:",
+                    "alternativas": [
+                      "Acelerar a transferência",
+                      "Aumentar sua desconfiança",
+                      "Ser ignorado, porque é normal"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. Urgência é ferramenta de golpe.",
+                    "feedbackErro": "A pressa serve para você não conferir. Desconfie e confirme."
+                  },
+                  {
+                    "enunciado": "Para onde vai o dinheiro em um PIX de golpe?",
+                    "alternativas": [
+                      "Para uma conta que costuma ser difícil de rastrear",
+                      "Para o próprio banco",
+                      "Para o número de telefone"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Recuperar é difícil, por isso a checagem antes é essencial.",
+                    "feedbackErro": "O dinheiro vai para contas de passagem, muitas vezes de laranjas. Recuperar é raro."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t2m3",
+          "titulo": "Golpes de confiança",
+          "objetivo": "Reconhecer golpes que se apoiam em sonhos, medo e autoridade.",
+          "duracaoMin": 12,
+          "licoes": [
+            {
+              "id": "t2m3l1",
+              "titulo": "Falso emprego",
+              "tipo": "TXT",
+              "duracaoSeg": 190,
+              "resumo": "Vaga fácil, salário alto e pedido de pagamento antecipado. O golpe do emprego.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "A promessa",
+                  "texto": "A vaga oferece salário alto, trabalho em casa e contratação imediata. Depois vem o pedido: pagar curso, taxa de cadastro ou equipamento."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Como diferenciar",
+                  "texto": "Empresa séria não cobra para contratar. Pesquise o CNPJ, procure a vaga no site oficial e desconfie de entrevista feita só por mensagem."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Trabalho de verdade paga você. Nunca o contrário."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual é um sinal de vaga falsa?",
+                    "alternativas": [
+                      "Pedir pagamento de curso ou taxa antes da contratação",
+                      "Fazer entrevista por vídeo",
+                      "Pedir currículo em PDF"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. Cobrança para trabalhar é sinal clássico de golpe.",
+                    "feedbackErro": "Entrevista e currículo são normais. Cobrar para contratar não é."
+                  },
+                  {
+                    "enunciado": "Como conferir se a empresa existe?",
+                    "alternativas": [
+                      "Pelo número de seguidores",
+                      "Pelo CNPJ e pelo site oficial",
+                      "Pela foto do recrutador"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. CNPJ e site oficial dão base para a checagem.",
+                    "feedbackErro": "Seguidores e foto são fáceis de falsificar. Consulte CNPJ e canais oficiais."
+                  },
+                  {
+                    "enunciado": "A vaga pede dados bancários no primeiro contato. Você:",
+                    "alternativas": [
+                      "Envia para garantir a vaga",
+                      "Não envia e desconfia",
+                      "Envia só o número da conta"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Dados bancários só depois de contratação formal.",
+                    "feedbackErro": "Nenhuma vaga legítima precisa da sua conta no primeiro contato."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m3l2",
+              "titulo": "Falsa central do banco",
+              "tipo": "SIM",
+              "duracaoSeg": 220,
+              "resumo": "“Identificamos uma compra suspeita.” A ligação parece oficial, mas o objetivo é o código.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "O número na tela pode mentir",
+                  "texto": "Golpistas conseguem falsificar o número exibido na sua tela. O nome do banco aparecer não é prova de que é o banco."
+                },
+                {
+                  "tipo": "simulacao",
+                  "texto": "A ligação diz: “Compra de R$ 2.300 aprovada. Para cancelar, informe o código que vai chegar”. O que você faz?",
+                  "opcoes": [
+                    {
+                      "texto": "Informo o código para cancelar a compra",
+                      "resultado": "O código autoriza a compra que você queria cancelar. O banco não pede esse número.",
+                      "correta": false
+                    },
+                    {
+                      "texto": "Desligo e chamo o banco pelo aplicativo ou pelo número do cartão",
+                      "resultado": "No app não existe compra suspeita. Você falou com o banco de verdade e evitou o prejuízo.",
+                      "correta": true
+                    },
+                    {
+                      "texto": "Peço o nome completo do atendente",
+                      "resultado": "O golpista inventa um nome e continua. O nome não confirma nada.",
+                      "correta": false
+                    }
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Banco não liga pedindo código. Se pediu, não é o banco."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O número na tela mostra o nome do banco. Isso prova que é ele?",
+                    "alternativas": [
+                      "Sim, o número é oficial",
+                      "Não, o número pode ser falsificado",
+                      "Sim, se a ligação for durante o dia"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. A identificação de chamada pode ser imitada.",
+                    "feedbackErro": "O nome exibido não é garantia. Golpistas falsificam números e nomes."
+                  },
+                  {
+                    "enunciado": "A ligação pede o código que chegou por SMS. Você:",
+                    "alternativas": [
+                      "Informa para cancelar a compra",
+                      "Não informa e desliga",
+                      "Informa só se a compra existir"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. O código nunca se informa por telefone.",
+                    "feedbackErro": "Mesmo que a compra exista, o código não deve ser ditado. Desligue e use o canal oficial."
+                  },
+                  {
+                    "enunciado": "Qual é o canal seguro para confirmar uma suspeita?",
+                    "alternativas": [
+                      "O número que ligou",
+                      "O aplicativo oficial ou o número do verso do cartão",
+                      "O WhatsApp do banco"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Isso. Você inicia o contato por um canal que já conhece.",
+                    "feedbackErro": "Ligar de volta para o número que te chamou mantém você com o golpista."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m3l3",
+              "titulo": "Investimento milagroso",
+              "tipo": "TXT",
+              "duracaoSeg": 190,
+              "resumo": "Retorno garantido e pressa para depositar são a combinação clássica da fraude financeira.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "O que prometem",
+                  "texto": "Lucro alto em pouco tempo, sem risco, com prints de ganhos e depoimentos de pessoas felizes. Os primeiros saques funcionam para criar confiança."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "Como se proteger",
+                  "texto": "Desconfie de retorno garantido. Verifique se a empresa é autorizada pela CVM ou pelo Banco Central. Nunca deposite em conta de pessoa física."
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Se parece bom demais e tem pressa, provavelmente é golpe. Investimento sério explica riscos."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual promessa é sinal de alerta?",
+                    "alternativas": [
+                      "Retorno alto garantido e sem risco",
+                      "Explicação clara sobre riscos",
+                      "Empresa registrada e com histórico"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. Todo investimento tem risco. 'Garantido' é conversa de golpe.",
+                    "feedbackErro": "Risco explicado é sinal de seriedade. Lucro garantido não existe."
+                  },
+                  {
+                    "enunciado": "Por que os primeiros saques funcionam?",
+                    "alternativas": [
+                      "Porque o investimento é real",
+                      "Para criar confiança e atrair mais dinheiro",
+                      "Porque o banco libera"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Certo. É a isca para você depositar mais depois.",
+                    "feedbackErro": "O saque inicial é parte do golpe: serve para você acreditar e investir mais."
+                  },
+                  {
+                    "enunciado": "Depósito em conta de pessoa física para investir é:",
+                    "alternativas": [
+                      "Normal no mercado",
+                      "Um forte sinal de fraude",
+                      "Exigência legal"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Empresas autorizadas usam canais próprios e contas jurídicas.",
+                    "feedbackErro": "Investimento sério não pede depósito em conta pessoal."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "t2m4",
+          "titulo": "Depois do clique",
+          "objetivo": "Saber o que fazer nos primeiros minutos e como pedir ajuda.",
+          "duracaoMin": 9,
+          "licoes": [
+            {
+              "id": "t2m4l1",
+              "titulo": "Os primeiros 10 minutos",
+              "tipo": "CHK",
+              "duracaoSeg": 200,
+              "resumo": "Agir rápido reduz o prejuízo. Uma lista curta para momentos de tensão.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Sem culpa, com ação",
+                  "texto": "Cair em um golpe pode acontecer com qualquer pessoa. O que muda o resultado é o que vem depois. Não esconda: quanto mais rápido agir, maiores as chances de reduzir o dano."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Faça nesta ordem",
+                  "itens": [
+                    "Desconecte da internet se instalou algo",
+                    "Bloqueie cartões e contas envolvidos",
+                    "Troque as senhas das contas afetadas",
+                    "Guarde prints e comprovantes",
+                    "Registre o boletim de ocorrência",
+                    "Avise o banco e uma pessoa de confiança"
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "O primeiro passo não é descobrir quem foi. É parar o prejuízo."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Você instalou um aplicativo suspeito. O primeiro passo é:",
+                    "alternativas": [
+                      "Desconectar da internet",
+                      "Reiniciar o celular",
+                      "Apagar o aplicativo e continuar"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Certo. Sem conexão, o acesso remoto é interrompido.",
+                    "feedbackErro": "Reiniciar ou apagar o app pode não encerrar o acesso. Desconectar vem primeiro."
+                  },
+                  {
+                    "enunciado": "Por que guardar prints e comprovantes?",
+                    "alternativas": [
+                      "Para provar o ocorrido no banco e no registro",
+                      "Para postar nas redes",
+                      "Para o golpista devolver o dinheiro"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. As provas ajudam no registro e na contestação.",
+                    "feedbackErro": "As provas servem ao registro e ao banco, não para expor o caso publicamente."
+                  },
+                  {
+                    "enunciado": "Sentir vergonha depois de um golpe:",
+                    "alternativas": [
+                      "É motivo para esconder o caso",
+                      "É comum, mas não deve impedir pedir ajuda",
+                      "Mostra que a pessoa não merece ajuda"
+                    ],
+                    "correta": 1,
+                    "feedbackOk": "Exato. Acolher é o que permite agir rápido.",
+                    "feedbackErro": "Golpes são planejados para enganar pessoas. Esconder só aumenta o prejuízo."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m4l2",
+              "titulo": "Registrar e pedir ajuda",
+              "tipo": "TXT",
+              "duracaoSeg": 190,
+              "resumo": "Quem procurar, o que registrar e por que isso importa.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Canais que existem",
+                  "texto": "O banco tem canal de fraude. A polícia registra boletim de ocorrência, muitas vezes pela internet. Para golpes financeiros, a Central de Atendimento ao Consumidor também orienta."
+                },
+                {
+                  "tipo": "texto",
+                  "titulo": "O que levar",
+                  "texto": "Tenha em mãos prints da conversa, comprovantes, número da conta de destino e horários. Quanto mais organizado, mais rápido o atendimento."
+                },
+                {
+                  "tipo": "family",
+                  "texto": "Atividade em família: salvem juntos o número do banco e o site do boletim de ocorrência em um lugar fácil de achar."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "O que ajuda no atendimento do banco?",
+                    "alternativas": [
+                      "Prints, horários e comprovantes organizados",
+                      "Contar a história de memória",
+                      "Apagar as mensagens depois"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. Informação organizada acelera a análise.",
+                    "feedbackErro": "Sem provas, o banco tem menos recursos para agir. Não apague as mensagens."
+                  },
+                  {
+                    "enunciado": "Registrar boletim de ocorrência serve para:",
+                    "alternativas": [
+                      "Documentar o crime e apoiar a contestação",
+                      "Garantir a devolução imediata",
+                      "Culpar a vítima"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Certo. O registro documenta e fortalece o pedido de ressarcimento.",
+                    "feedbackErro": "O registro não devolve o dinheiro na hora, mas documenta o crime e apoia o processo."
+                  },
+                  {
+                    "enunciado": "Um amigo caiu em golpe e está com vergonha. Você:",
+                    "alternativas": [
+                      "Acolhe e ajuda a organizar os próximos passos",
+                      "Diz que era óbvio",
+                      "Compartilha o caso para alertar"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Acolhimento permite agir rápido e evita novo golpe.",
+                    "feedbackErro": "Crítica e exposição aumentam a vergonha e atrasam a ajuda."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t2m4l3",
+              "titulo": "Conversa em família",
+              "tipo": "FAM",
+              "duracaoSeg": 240,
+              "resumo": "Fechamento da trilha com uma conversa de 15 minutos sobre o que a família aprendeu.",
+              "blocos": [
+                {
+                  "tipo": "texto",
+                  "titulo": "Por que conversar muda tudo",
+                  "texto": "Golpes se aproveitam do silêncio. Quando a família sabe que pode contar sem ser julgada, a ajuda chega mais rápido e o prejuízo tende a ser menor."
+                },
+                {
+                  "tipo": "checklist",
+                  "titulo": "Roteiro da conversa",
+                  "itens": [
+                    "Cada um conta um golpe que já viu ou recebeu",
+                    "Escolham juntos uma frase para usar quando algo parecer estranho",
+                    "Combinem quem ligar primeiro em caso de dúvida",
+                    "Salvem o contato do banco em um lugar visível",
+                    "Marquem uma nova conversa em um mês"
+                  ]
+                },
+                {
+                  "tipo": "destaque",
+                  "texto": "Família que conversa cai menos em golpe — e se recupera mais rápido quando cai."
+                }
+              ],
+              "quiz": {
+                "perguntas": [
+                  {
+                    "enunciado": "Qual é o maior efeito de conversar sobre golpes em família?",
+                    "alternativas": [
+                      "Diminuir o silêncio e acelerar a ajuda",
+                      "Garantir que ninguém mais erre",
+                      "Assustar as crianças"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Isso. A conversa remove a vergonha e aproxima a ajuda.",
+                    "feedbackErro": "Ninguém fica imune, mas o silêncio é o que mais atrasa a reação."
+                  },
+                  {
+                    "enunciado": "O que deixar combinado?",
+                    "alternativas": [
+                      "Uma frase de alerta e quem chamar primeiro",
+                      "Que ninguém use internet",
+                      "Que só o responsável use o celular"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Certo. Um combinado simples funciona melhor que uma regra rígida.",
+                    "feedbackErro": "Proibir tudo não protege. Um acordo claro de ajuda protege."
+                  },
+                  {
+                    "enunciado": "Uma conversa de 15 minutos por mês:",
+                    "alternativas": [
+                      "Já ajuda a manter o assunto vivo",
+                      "Só vale se durar horas",
+                      "É perda de tempo"
+                    ],
+                    "correta": 0,
+                    "feedbackOk": "Exato. Constância curta vale mais que um encontro longo e raro.",
+                    "feedbackErro": "Encontros curtos e regulares criam confiança. Longos e raros somem da rotina."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

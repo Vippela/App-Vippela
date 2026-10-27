@@ -10,6 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.text.input.*
 import br.com.vippela.data.*
+import br.com.vippela.data.auth.formatBirthDateInput
+import br.com.vippela.data.auth.parseBirthDate
 import br.com.vippela.ui.components.*
 import br.com.vippela.ui.theme.*
 
@@ -72,6 +74,7 @@ fun LoginScreen(state: DemoState, enter: () -> Unit, register: () -> Unit, recov
 @Composable
 fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.RESPONSAVEL) {
     var name by rememberSaveable { mutableStateOf("") }
+    var birthDate by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf(state.registrationEmail) }
     var password by rememberSaveable { mutableStateOf("") }
     var role by rememberSaveable {
@@ -79,10 +82,11 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
     }
     var invalido by rememberSaveable { mutableStateOf(false) }
     val erro = state.authError
+    val parsedBirthDate = parseBirthDate(birthDate)
     val completo =
-        name.trim().length >= 2 &&
-            android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() &&
-            password.length >= 8
+        name.trim().length in 2..50 &&
+            email.trim().length <= 254 && android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() &&
+            password.length >= 8 && password.toByteArray(Charsets.UTF_8).size <= 72 && parsedBirthDate != null
     Page {
         Text("Vamos nos conhecer", style = MaterialTheme.typography.headlineMedium)
         Text("Escolha como você vai usar a Vippela.", color = Muted)
@@ -94,6 +98,23 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
             Modifier.fillMaxWidth(),
             label = { Text("Nome") },
             singleLine = true,
+            isError = name.isNotBlank() && name.trim().length !in 2..50,
+            supportingText = { Text("Entre 2 e 50 caracteres") },
+        )
+        OutlinedTextField(
+            birthDate,
+            { birthDate = formatBirthDateInput(it) },
+            Modifier.fillMaxWidth(),
+            label = { Text("Data de nascimento") },
+            placeholder = { Text("DD/MM/AAAA") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            isError = birthDate.isNotEmpty() && parsedBirthDate == null,
+            supportingText = {
+                Text(if (birthDate.isNotEmpty() && parsedBirthDate == null)
+                    "Informe uma data válida, até hoje, no formato DD/MM/AAAA."
+                else "DD/MM/AAAA")
+            },
         )
         OutlinedTextField(
             email,
@@ -110,10 +131,12 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
             label = { Text("Senha (mínimo 8 caracteres)") },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
+            isError = password.isNotEmpty() && (password.length < 8 || password.toByteArray(Charsets.UTF_8).size > 72),
+            supportingText = { Text("Mínimo de 8 caracteres. Senhas com acentos podem atingir o limite antes de 72 caracteres.") },
         )
         if (invalido)
             Text(
-                "Use um e-mail válido, nome e senha de pelo menos 8 caracteres.",
+                "Informe nome, data de nascimento válida, e-mail e senha de pelo menos 8 caracteres.",
                 color = Red,
             )
         erro?.let { Text(it, color = Red) }
@@ -128,6 +151,7 @@ fun RegisterScreen(state: DemoState, done: () -> Unit, initialRole: Role = Role.
                     email,
                     password,
                     if (role == 0) Role.RESPONSAVEL else Role.FAMILIAR,
+                    dataNascimento = parsedBirthDate?.toString(),
                 ) { if (it) done() }
             }
         }
